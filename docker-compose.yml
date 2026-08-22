@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: api_guardian_postgres
+    environment:
+      POSTGRES_DB: api_guardian
+      POSTGRES_USER: guardian
+      POSTGRES_PASSWORD: guardian_dev_password
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U guardian -d api_guardian"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: api_guardian_redis
+    ports:
+      - "6379:6379"
+
+  squid-proxy:
+    image: ubuntu/squid:latest
+    container_name: api_guardian_proxy
+    ports:
+      - "3128:3128"
+    volumes:
+      - ./infrastructure/squid/squid.conf:/etc/squid/squid.conf:ro

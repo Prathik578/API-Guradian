@@ -1,0 +1,1 @@
+"""FastAPI HTTP delivery layer."""
