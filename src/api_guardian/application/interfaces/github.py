@@ -7,7 +7,21 @@ class GitHubPlatform(ABC):
     @abstractmethod
     def check_head_sha(self, repository_id: uuid.UUID, branch: str) -> str:
         """Fetches the current HEAD commit SHA for a branch."""
-        pass
+
+    @abstractmethod
+    def push_patch_to_branch(
+        self, 
+        repository_id: uuid.UUID, 
+        base_sha: str, 
+        branch_name: str, 
+        files_to_update: dict[str, str], 
+        commit_message: str
+    ) -> str:
+        """Commits and pushes file changes to a new or existing branch.
+        
+        Returns:
+            The new commit SHA.
+        """
 
     @abstractmethod
     def open_pull_request(
@@ -23,4 +37,3 @@ class GitHubPlatform(ABC):
         Returns:
             Tuple of (pr_number, pr_url).
         """
-        pass

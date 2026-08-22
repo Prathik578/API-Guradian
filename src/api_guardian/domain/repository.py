@@ -1,7 +1,7 @@
 """Repository and Snapshot domain models."""
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 
@@ -28,7 +28,7 @@ class RepositorySnapshot:
     archive_content_hash: str
     code_model_version: str
     dependency_graph: dict[str, Any] | None = None
-    analyzed_at: datetime = field(default_factory=datetime.utcnow)
+    analyzed_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 @dataclass
@@ -39,5 +39,5 @@ class Repository:
     name: str
     github_full_name: str
     default_branch: str = "main"
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))

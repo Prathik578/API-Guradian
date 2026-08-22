@@ -12,5 +12,5 @@ class RedisClient:
     def get_val(self, key: str) -> str | None:
         val = self.client.get(key)
         if val is not None:
-            return val.decode("utf-8")
+            return val.decode("utf-8") if isinstance(val, bytes) else str(val)
         return None

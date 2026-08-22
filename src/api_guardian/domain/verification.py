@@ -1,7 +1,7 @@
 """Verification domain models."""
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 
 
@@ -62,7 +62,7 @@ class VerificationResult:
     result_classification: ResultClass
     stdout_hash: str
     stderr_hash: str
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 @dataclass
@@ -75,5 +75,5 @@ class VerificationRun:
     sandbox_task_id: str | None = None
     state: VerificationState = VerificationState.QUEUED
     result: VerificationResult | None = None
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))

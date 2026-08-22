@@ -1,6 +1,7 @@
 """S3 Storage Adapter."""
-import boto3
 from typing import BinaryIO
+
+import boto3
 
 
 class S3StorageAdapter:

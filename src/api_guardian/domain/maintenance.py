@@ -1,8 +1,9 @@
 """Maintenance Case and Impact Assessment domain models."""
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
+from typing import Any
 
 from api_guardian.domain.exceptions import InvalidStateTransitionError
 
@@ -46,8 +47,8 @@ class ImpactAssessment:
     classification: ImpactClassification
     evidence_level: EvidenceLevel
     affected_files: list[str]
-    evidence_payload: dict
-    assessed_at: datetime = field(default_factory=datetime.utcnow)
+    evidence_payload: dict[str, Any]
+    assessed_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 @dataclass
@@ -59,8 +60,8 @@ class MaintenanceCase:
     provider_change_id: uuid.UUID
     base_revision_sha: str
     state: MaintenanceCaseState = MaintenanceCaseState.DISCOVERED
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def transition_to(self, new_state: MaintenanceCaseState) -> None:
         """Transitions the case to a new state if valid."""
@@ -119,4 +120,4 @@ class MaintenanceCase:
             raise InvalidStateTransitionError("MaintenanceCase", self.state, new_state)
 
         self.state = new_state
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now(UTC)

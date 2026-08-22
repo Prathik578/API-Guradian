@@ -1,16 +1,16 @@
 """Repository interfaces (Ports) for Domain Entities."""
 import uuid
 from abc import ABC, abstractmethod
-from typing import Sequence
+from collections.abc import Sequence
 
 from api_guardian.domain import (
     MaintenanceCase,
-    RepositorySnapshot,
-    ProviderChange,
     MigrationCampaign,
-    VerificationRun,
+    ProviderChange,
     PullRequest,
-    TenantContext
+    RepositorySnapshot,
+    TenantContext,
+    VerificationRun,
 )
 
 

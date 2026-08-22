@@ -566,13 +566,7 @@ Use categorical evidence levels such as:
 
 Do not expose fake mathematical precision.
 
-Separate:
-
-**Evidence strength**
-
-from:
-
-**Impact classification**
+Separate "Evidence strength" from "Impact classification".
 
 Possible classifications:
 
@@ -860,7 +854,7 @@ Container image (immutable, built by API Guardian):
 The Fargate task receives these environment variables at launch:
 
 | Variable | Purpose | Lifetime |
-|---|---|---|
+| --- | --- | --- |
 | `SNAPSHOT_URL` | Pre-signed S3 GET URL for repository archive | 10 minutes |
 | `PATCH_URL` | Pre-signed S3 GET URL for PatchArtifact | 10 minutes |
 | `RESULT_URL` | Pre-signed S3 PUT URL for result upload | 30 minutes |

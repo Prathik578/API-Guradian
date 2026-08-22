@@ -1,7 +1,6 @@
 """Sandbox Orchestrator interface (Port)."""
 import uuid
 from abc import ABC, abstractmethod
-from typing import Any
 
 
 class SandboxOrchestrator(ABC):
@@ -22,4 +21,3 @@ class SandboxOrchestrator(ABC):
         Returns:
             task_id (str): The execution platform's identifier for the task.
         """
-        pass

@@ -1,8 +1,10 @@
 """Database engine and session management with RLS support."""
+from collections.abc import Generator
 from contextlib import contextmanager
-from typing import Generator
-from sqlalchemy import create_engine, event
-from sqlalchemy.orm import sessionmaker, Session
+from typing import Any
+
+from sqlalchemy import create_engine, event, text
+from sqlalchemy.orm import Session, sessionmaker
 
 from api_guardian.domain import TenantContext
 
@@ -15,7 +17,7 @@ class DatabaseManager:
         
         # Enforce RLS context clearing when connections return to pool
         @event.listens_for(self.engine, "checkin")
-        def reset_tenant_context(dbapi_connection, connection_record):
+        def reset_tenant_context(dbapi_connection: Any, connection_record: Any) -> None:
             cursor = dbapi_connection.cursor()
             try:
                 cursor.execute("RESET app.current_tenant_id")
@@ -29,7 +31,7 @@ class DatabaseManager:
         try:
             # Set the tenant context for this transaction
             session.execute(
-                "SET LOCAL app.current_tenant_id = :tenant_id",
+                text("SET LOCAL app.current_tenant_id = :tenant_id"),
                 {"tenant_id": str(ctx.tenant_id)}
             )
             yield session

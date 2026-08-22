@@ -1,10 +1,18 @@
 """SQLAlchemy ORM tables for domain entities."""
 import uuid
-from sqlalchemy import String, Enum as SQLEnum, Uuid, JSON, Integer, Boolean, ForeignKey
+from typing import Any
+
+from sqlalchemy import JSON, ForeignKey, Integer, String, Uuid
+from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import Mapped, mapped_column
 
-from api_guardian.domain import MaintenanceCaseState, MigrationState, VerificationState, ResultClass, ImpactClassification, EvidenceLevel
-from .base import Base, TimestampMixin, TenantMixin
+from api_guardian.domain import (
+    MaintenanceCaseState,
+    MigrationState,
+    VerificationState,
+)
+
+from .base import Base, TenantMixin, TimestampMixin
 
 
 class OrganizationModel(Base, TimestampMixin):
@@ -46,4 +54,4 @@ class VerificationRunModel(Base, TimestampMixin, TenantMixin):
     sandbox_task_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     state: Mapped[VerificationState] = mapped_column(SQLEnum(VerificationState), nullable=False)
     # the rest of fields could be stored in a JSON column or separate columns
-    result_data: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    result_data: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)

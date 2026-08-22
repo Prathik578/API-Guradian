@@ -1,8 +1,9 @@
 """SQLAlchemy Declarative Base and mixins."""
 import uuid
 from datetime import datetime
+
+from sqlalchemy import DateTime, Uuid, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import DateTime, func, Uuid
 
 
 class Base(DeclarativeBase):

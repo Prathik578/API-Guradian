@@ -1,6 +1,4 @@
 """Routes initialization."""
-from . import health
-from . import webhooks
-from . import cases
+from . import cases, health, webhooks
 
-__all__ = ["health", "webhooks", "cases"]
+__all__ = ["cases", "health", "webhooks"]

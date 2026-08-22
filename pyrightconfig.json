@@ -1,0 +1,7 @@
+{
+  "venvPath": "/home/prathik/Documents/Antigravity",
+  "venv": ".venv",
+  "extraPaths": [
+    "src"
+  ]
+}

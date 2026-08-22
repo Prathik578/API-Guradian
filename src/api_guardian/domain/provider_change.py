@@ -1,7 +1,7 @@
 """Provider change domain models."""
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 
 
@@ -30,7 +30,7 @@ class RawArtifact:
     content: str
     content_hash: str
     source_url: str | None = None
-    fetched_at: datetime = field(default_factory=datetime.utcnow)
+    fetched_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 @dataclass
@@ -53,4 +53,4 @@ class ProviderChange:
     affected_entities: list[str]
     effective_date: datetime | None
     sunset_date: datetime | None
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))

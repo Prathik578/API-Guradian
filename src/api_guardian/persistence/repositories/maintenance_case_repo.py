@@ -1,12 +1,11 @@
 """Concrete implementation of MaintenanceCaseRepository."""
 import uuid
-from typing import Sequence
-from sqlalchemy import select
+from collections.abc import Sequence
 
-from api_guardian.domain import MaintenanceCase, TenantContext
 from api_guardian.application.interfaces import MaintenanceCaseRepository
-from api_guardian.persistence.models.tables import MaintenanceCaseModel
+from api_guardian.domain import MaintenanceCase, TenantContext
 from api_guardian.persistence.database import DatabaseManager
+from api_guardian.persistence.models.tables import MaintenanceCaseModel
 
 
 class SQLMaintenanceCaseRepository(MaintenanceCaseRepository):

@@ -2,8 +2,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routes import health, webhooks, cases
 from .middleware import TenantIdentificationMiddleware
+from .routes import cases, health, webhooks
 
 
 def create_app() -> FastAPI:

@@ -6,7 +6,6 @@ They should be caught and translated into appropriate HTTP responses at the API 
 
 class DomainError(Exception):
     """Base exception for all domain-related errors."""
-    pass
 
 
 class InvalidStateTransitionError(DomainError):
@@ -23,9 +22,7 @@ class InvalidStateTransitionError(DomainError):
 
 class ResourceNotFoundError(DomainError):
     """Raised when a required domain resource cannot be found."""
-    pass
 
 
 class InvariantViolationError(DomainError):
     """Raised when a core business invariant would be violated."""
-    pass

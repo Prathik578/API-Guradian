@@ -1,7 +1,7 @@
 """Migration domain models."""
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 
 
@@ -28,7 +28,7 @@ class PatchArtifact:
     archive_content_hash: str
     affected_files: list[str]
     patch_data: str
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 @dataclass
@@ -41,7 +41,7 @@ class MigrationAttempt:
     completion_tokens: int
     patch_artifact_id: uuid.UUID | None = None
     error_reason: str | None = None
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 @dataclass
@@ -50,5 +50,5 @@ class MigrationCampaign:
     id: uuid.UUID
     case_id: uuid.UUID
     state: MigrationState = MigrationState.PENDING
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))

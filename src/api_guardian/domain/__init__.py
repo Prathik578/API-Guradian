@@ -6,69 +6,64 @@ Rule: Domain code MUST NOT import external frameworks (FastAPI, SQLAlchemy, Cele
 from .exceptions import (
     DomainError,
     InvalidStateTransitionError,
+    InvariantViolationError,
     ResourceNotFoundError,
-    InvariantViolationError
-)
-from .organization import TenantContext, Organization
-from .repository import RepositoryRevision, RepositorySnapshot, Repository
-from .provider_change import (
-    ChangeClassification,
-    VersionGraph,
-    RawArtifact,
-    CandidateChange,
-    ProviderChange
 )
 from .maintenance import (
-    MaintenanceCaseState,
-    ImpactClassification,
     EvidenceLevel,
     ImpactAssessment,
-    MaintenanceCase
+    ImpactClassification,
+    MaintenanceCase,
+    MaintenanceCaseState,
 )
-from .migration import (
-    MigrationState,
-    PatchArtifact,
-    MigrationAttempt,
-    MigrationCampaign
+from .migration import MigrationAttempt, MigrationCampaign, MigrationState, PatchArtifact
+from .organization import Organization, TenantContext
+from .provider_change import (
+    CandidateChange,
+    ChangeClassification,
+    ProviderChange,
+    RawArtifact,
+    VersionGraph,
 )
+from .pull_request import PullRequest, PullRequestState
+from .repository import Repository, RepositoryRevision, RepositorySnapshot
 from .verification import (
-    VerificationState,
     ResultClass,
     VerificationPlan,
     VerificationResult,
-    VerificationRun
+    VerificationRun,
+    VerificationState,
 )
-from .pull_request import PullRequestState, PullRequest
 
 __all__ = [
-    "DomainError",
-    "InvalidStateTransitionError",
-    "ResourceNotFoundError",
-    "InvariantViolationError",
-    "TenantContext",
-    "Organization",
-    "RepositoryRevision",
-    "RepositorySnapshot",
-    "Repository",
-    "ChangeClassification",
-    "VersionGraph",
-    "RawArtifact",
     "CandidateChange",
-    "ProviderChange",
-    "MaintenanceCaseState",
-    "ImpactClassification",
+    "ChangeClassification",
+    "DomainError",
     "EvidenceLevel",
     "ImpactAssessment",
+    "ImpactClassification",
+    "InvalidStateTransitionError",
+    "InvariantViolationError",
     "MaintenanceCase",
-    "MigrationState",
-    "PatchArtifact",
+    "MaintenanceCaseState",
     "MigrationAttempt",
     "MigrationCampaign",
-    "VerificationState",
+    "MigrationState",
+    "Organization",
+    "PatchArtifact",
+    "ProviderChange",
+    "PullRequest",
+    "PullRequestState",
+    "RawArtifact",
+    "Repository",
+    "RepositoryRevision",
+    "RepositorySnapshot",
+    "ResourceNotFoundError",
     "ResultClass",
+    "TenantContext",
     "VerificationPlan",
     "VerificationResult",
     "VerificationRun",
-    "PullRequestState",
-    "PullRequest"
+    "VerificationState",
+    "VersionGraph"
 ]

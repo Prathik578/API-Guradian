@@ -1,6 +1,7 @@
 """LLM Gateway interface (Port)."""
 from abc import ABC, abstractmethod
 from enum import Enum
+from typing import Any
 
 
 class LLMRole(str, Enum):
@@ -23,7 +24,6 @@ class LLMGateway(ABC):
         Returns:
             Tuple of (response_text, prompt_tokens, completion_tokens).
         """
-        pass
 
     @abstractmethod
     def generate_structured(
@@ -32,10 +32,9 @@ class LLMGateway(ABC):
         prompt_envelope: str,
         schema_cls: type,
         max_tokens: int | None = None
-    ) -> tuple[dict, int, int]:
+    ) -> tuple[dict[str, Any], int, int]:
         """Generates a structured JSON completion matching schema_cls.
         
         Returns:
             Tuple of (parsed_dict, prompt_tokens, completion_tokens).
         """
-        pass
