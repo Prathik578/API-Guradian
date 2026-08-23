@@ -1,4 +1,5 @@
 """Verification domain models."""
+
 import uuid
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -34,10 +35,11 @@ class ResultClass(str, Enum):
 @dataclass
 class VerificationPlan:
     """Captured from the baseline workspace before any patch is applied."""
+
     test_command: str
     working_directory: str
     test_inventory: dict[str, str]  # filepath -> hash
-    config_file_hashes: dict[str, str] # filepath -> hash
+    config_file_hashes: dict[str, str]  # filepath -> hash
     baseline_test_count: int
     baseline_skip_count: int
     test_framework: str | None = None
@@ -49,6 +51,7 @@ class VerificationPlan:
 @dataclass
 class VerificationResult:
     """Authenticated result from the execution sandbox."""
+
     attempt_id: uuid.UUID
     nonce: str
     snapshot_hash: str
@@ -68,6 +71,7 @@ class VerificationResult:
 @dataclass
 class VerificationRun:
     """Structured result of running baseline and patched verification."""
+
     id: uuid.UUID
     campaign_id: uuid.UUID
     patch_artifact_id: uuid.UUID

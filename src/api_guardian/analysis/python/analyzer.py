@@ -1,4 +1,5 @@
 """Python AST Analyzer."""
+
 import ast
 
 from api_guardian.analysis.models import CallSite, CodeLocation, Module, Symbol, SymbolType
@@ -9,7 +10,7 @@ class PythonASTAnalyzer:
 
     def analyze_file(self, file_path: str, source_code: str) -> Module:
         module = Module(path=file_path)
-        
+
         try:
             tree = ast.parse(source_code, filename=file_path)
         except SyntaxError:
@@ -29,10 +30,9 @@ class PythonASTAnalyzer:
                     name=node.name,
                     symbol_type=SymbolType.FUNCTION,
                     location=CodeLocation(
-                        line_start=node.lineno,
-                        line_end=node.end_lineno or node.lineno
+                        line_start=node.lineno, line_end=node.end_lineno or node.lineno
                     ),
-                    call_sites=self._extract_calls(node)
+                    call_sites=self._extract_calls(node),
                 )
                 module.symbols.append(sym)
             elif isinstance(node, ast.ClassDef):
@@ -40,9 +40,8 @@ class PythonASTAnalyzer:
                     name=node.name,
                     symbol_type=SymbolType.CLASS,
                     location=CodeLocation(
-                        line_start=node.lineno,
-                        line_end=node.end_lineno or node.lineno
-                    )
+                        line_start=node.lineno, line_end=node.end_lineno or node.lineno
+                    ),
                 )
                 module.symbols.append(sym)
 
@@ -59,11 +58,12 @@ class PythonASTAnalyzer:
                 else:
                     continue
 
-                calls.append(CallSite(
-                    target_name=target_name,
-                    location=CodeLocation(
-                        line_start=child.lineno,
-                        line_end=child.end_lineno or child.lineno
+                calls.append(
+                    CallSite(
+                        target_name=target_name,
+                        location=CodeLocation(
+                            line_start=child.lineno, line_end=child.end_lineno or child.lineno
+                        ),
                     )
-                ))
+                )
         return calls

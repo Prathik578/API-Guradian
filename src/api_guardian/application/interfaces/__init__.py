@@ -7,12 +7,15 @@ from .repositories import (
     MigrationRepository,
     ProviderChangeRepository,
     PullRequestRepository,
+    RawArtifactRepository,
     SnapshotRepository,
     VerificationRepository,
 )
 from .sandbox import SandboxOrchestrator
+from .storage import ArtifactStoragePort
 
 __all__ = [
+    "ArtifactStoragePort",
     "GitHubPlatform",
     "LLMGateway",
     "LLMRole",
@@ -20,7 +23,8 @@ __all__ = [
     "MigrationRepository",
     "ProviderChangeRepository",
     "PullRequestRepository",
+    "RawArtifactRepository",
     "SandboxOrchestrator",
     "SnapshotRepository",
-    "VerificationRepository"
+    "VerificationRepository",
 ]

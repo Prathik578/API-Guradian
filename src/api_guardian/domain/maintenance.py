@@ -1,4 +1,5 @@
 """Maintenance Case and Impact Assessment domain models."""
+
 import uuid
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -41,6 +42,7 @@ class EvidenceLevel(str, Enum):
 @dataclass
 class ImpactAssessment:
     """Evidence-backed determination of whether the repository is affected."""
+
     id: uuid.UUID
     case_id: uuid.UUID
     snapshot_id: uuid.UUID
@@ -54,6 +56,7 @@ class ImpactAssessment:
 @dataclass
 class MaintenanceCase:
     """Aggregate root representing an external change affecting a repository."""
+
     id: uuid.UUID
     organization_id: uuid.UUID
     repository_id: uuid.UUID
@@ -66,40 +69,43 @@ class MaintenanceCase:
     def transition_to(self, new_state: MaintenanceCaseState) -> None:
         """Transitions the case to a new state if valid."""
         valid_transitions = {
-            MaintenanceCaseState.DISCOVERED: [MaintenanceCaseState.IMPACT_ANALYZING, MaintenanceCaseState.CANCELLED],
+            MaintenanceCaseState.DISCOVERED: [
+                MaintenanceCaseState.IMPACT_ANALYZING,
+                MaintenanceCaseState.CANCELLED,
+            ],
             MaintenanceCaseState.IMPACT_ANALYZING: [
-                MaintenanceCaseState.UNAFFECTED, 
+                MaintenanceCaseState.UNAFFECTED,
                 MaintenanceCaseState.AFFECTED_ACTION_REQUIRED,
-                MaintenanceCaseState.CANCELLED
+                MaintenanceCaseState.CANCELLED,
             ],
             MaintenanceCaseState.AFFECTED_ACTION_REQUIRED: [
                 MaintenanceCaseState.MIGRATING,
                 MaintenanceCaseState.MANUALLY_RESOLVED,
                 MaintenanceCaseState.SUPPRESSED,
-                MaintenanceCaseState.CANCELLED
+                MaintenanceCaseState.CANCELLED,
             ],
             MaintenanceCaseState.MIGRATING: [
                 MaintenanceCaseState.VERIFYING,
                 MaintenanceCaseState.HUMAN_INTERVENTION_REQUIRED,
                 MaintenanceCaseState.STALE,
-                MaintenanceCaseState.CANCELLED
+                MaintenanceCaseState.CANCELLED,
             ],
             MaintenanceCaseState.VERIFYING: [
                 MaintenanceCaseState.PR_OPEN,
-                MaintenanceCaseState.AFFECTED_ACTION_REQUIRED, # e.g. on failure -> retry
+                MaintenanceCaseState.AFFECTED_ACTION_REQUIRED,  # e.g. on failure -> retry
                 MaintenanceCaseState.HUMAN_INTERVENTION_REQUIRED,
                 MaintenanceCaseState.STALE,
-                MaintenanceCaseState.CANCELLED
+                MaintenanceCaseState.CANCELLED,
             ],
             MaintenanceCaseState.PR_OPEN: [
                 MaintenanceCaseState.RESOLVED,
                 MaintenanceCaseState.STALE,
-                MaintenanceCaseState.CANCELLED
+                MaintenanceCaseState.CANCELLED,
             ],
             MaintenanceCaseState.STALE: [
                 MaintenanceCaseState.IMPACT_ANALYZING,
-                MaintenanceCaseState.CANCELLED
-            ]
+                MaintenanceCaseState.CANCELLED,
+            ],
         }
 
         # Terminal states have no valid outward transitions normally except manual interventions
@@ -109,14 +115,19 @@ class MaintenanceCase:
             MaintenanceCaseState.SUPPRESSED,
             MaintenanceCaseState.MANUALLY_RESOLVED,
             MaintenanceCaseState.CANCELLED,
-            MaintenanceCaseState.HUMAN_INTERVENTION_REQUIRED
+            MaintenanceCaseState.HUMAN_INTERVENTION_REQUIRED,
         }
 
-        if self.state in terminal_states and new_state not in [MaintenanceCaseState.IMPACT_ANALYZING, MaintenanceCaseState.DISCOVERED]:
+        if self.state in terminal_states and new_state not in [
+            MaintenanceCaseState.IMPACT_ANALYZING,
+            MaintenanceCaseState.DISCOVERED,
+        ]:
             # Admins might reset, but generally terminal states don't transition
-             raise InvalidStateTransitionError("MaintenanceCase", self.state, new_state)
+            raise InvalidStateTransitionError("MaintenanceCase", self.state, new_state)
 
-        if self.state not in terminal_states and new_state not in valid_transitions.get(self.state, []):
+        if self.state not in terminal_states and new_state not in valid_transitions.get(
+            self.state, []
+        ):
             raise InvalidStateTransitionError("MaintenanceCase", self.state, new_state)
 
         self.state = new_state

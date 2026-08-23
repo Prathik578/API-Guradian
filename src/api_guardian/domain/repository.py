@@ -1,4 +1,5 @@
 """Repository and Snapshot domain models."""
+
 import uuid
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -8,9 +9,10 @@ from typing import Any
 @dataclass(frozen=True)
 class RepositoryRevision:
     """A specific point in a repository's git history.
-    
+
     This is the logical identity of the code at a point in time.
     """
+
     repository_id: uuid.UUID
     branch: str
     commit_sha: str
@@ -19,10 +21,11 @@ class RepositoryRevision:
 @dataclass
 class RepositorySnapshot:
     """Immutable analysis context representing the physical archive of a repository.
-    
-    The architecture proves that the exact repository state analyzed is the 
+
+    The architecture proves that the exact repository state analyzed is the
     exact state verified by comparing the commit SHA and archive_content_hash.
     """
+
     id: uuid.UUID
     revision: RepositoryRevision
     archive_content_hash: str
@@ -34,6 +37,7 @@ class RepositorySnapshot:
 @dataclass
 class Repository:
     """Customer-managed codebase registered with API Guardian."""
+
     id: uuid.UUID
     organization_id: uuid.UUID
     name: str

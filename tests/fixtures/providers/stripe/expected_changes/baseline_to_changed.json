@@ -1,0 +1,17 @@
+[
+  {
+    "provider": "stripe",
+    "change_type": "endpoint_removed",
+    "target_entity": "/v1/tokens"
+  },
+  {
+    "provider": "stripe",
+    "change_type": "endpoint_deprecated",
+    "target_entity": "POST /v1/charges/{charge}/capture"
+  },
+  {
+    "provider": "stripe",
+    "change_type": "field_deprecated",
+    "target_entity": "Charge.source"
+  }
+]

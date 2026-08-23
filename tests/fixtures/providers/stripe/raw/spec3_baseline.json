@@ -1,0 +1,43 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Stripe API",
+    "version": "2024-06-20"
+  },
+  "paths": {
+    "/v1/charges": {
+      "get": {
+        "summary": "Returns a list of charges"
+      }
+    },
+    "/v1/tokens": {
+      "post": {
+        "summary": "Creates a token"
+      }
+    },
+    "/v1/charges/{charge}/capture": {
+      "post": {
+        "summary": "Capture a charge"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Charge": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "integer"
+          },
+          "source": {
+            "type": "object",
+            "description": "The source used for this charge"
+          }
+        }
+      }
+    }
+  }
+}

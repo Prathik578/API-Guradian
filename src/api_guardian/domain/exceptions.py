@@ -4,12 +4,14 @@ These exceptions represent business logic errors and invariant violations.
 They should be caught and translated into appropriate HTTP responses at the API layer.
 """
 
+
 class DomainError(Exception):
     """Base exception for all domain-related errors."""
 
 
 class InvalidStateTransitionError(DomainError):
     """Raised when an invalid state machine transition is attempted."""
+
     def __init__(self, entity_type: str, current_state: str, target_state: str):
         self.entity_type = entity_type
         self.current_state = current_state

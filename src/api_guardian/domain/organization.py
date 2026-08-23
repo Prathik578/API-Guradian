@@ -1,4 +1,5 @@
 """Organization and Tenant context domain models."""
+
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -7,15 +8,17 @@ from datetime import datetime
 @dataclass(frozen=True)
 class TenantContext:
     """Represents the current tenant context.
-    
+
     Used to enforce tenant isolation throughout the application stack.
     """
+
     tenant_id: uuid.UUID
 
 
 @dataclass
 class Organization:
     """An organization that uses API Guardian."""
+
     id: uuid.UUID
     name: str
     github_installation_id: int | None = None

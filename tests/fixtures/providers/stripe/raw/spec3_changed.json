@@ -1,0 +1,41 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Stripe API",
+    "version": "2024-07-20"
+  },
+  "paths": {
+    "/v1/charges": {
+      "get": {
+        "summary": "Returns a list of charges"
+      }
+    },
+    "/v1/charges/{charge}/capture": {
+      "post": {
+        "summary": "Capture a charge",
+        "deprecated": true,
+        "x-stripeDeprecated": true
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Charge": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "integer"
+          },
+          "source": {
+            "type": "object",
+            "description": "The source used for this charge",
+            "deprecated": true
+          }
+        }
+      }
+    }
+  }
+}

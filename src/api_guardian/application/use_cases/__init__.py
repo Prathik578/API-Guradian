@@ -1,4 +1,5 @@
 """Application Use Cases."""
+
 from .analyze_repository import AnalyzeRepositoryUseCase
 from .assess_impact import AssessImpactUseCase
 from .create_pull_request import CreatePullRequestUseCase
@@ -12,5 +13,5 @@ __all__ = [
     "CreatePullRequestUseCase",
     "ExecuteVerificationUseCase",
     "GenerateMigrationUseCase",
-    "SyncProviderUseCase"
+    "SyncProviderUseCase",
 ]

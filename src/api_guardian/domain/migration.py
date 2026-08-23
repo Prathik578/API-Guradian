@@ -1,4 +1,5 @@
 """Migration domain models."""
+
 import uuid
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -22,6 +23,7 @@ class MigrationState(str, Enum):
 @dataclass
 class PatchArtifact:
     """Immutable patch bound to a specific repository and commit."""
+
     id: uuid.UUID
     repository_id: uuid.UUID
     base_commit_sha: str
@@ -34,6 +36,7 @@ class PatchArtifact:
 @dataclass
 class MigrationAttempt:
     """One generation/repair attempt by the migration system."""
+
     id: uuid.UUID
     campaign_id: uuid.UUID
     model_name: str
@@ -47,6 +50,7 @@ class MigrationAttempt:
 @dataclass
 class MigrationCampaign:
     """Workflow for resolving an affected MaintenanceCase."""
+
     id: uuid.UUID
     case_id: uuid.UUID
     state: MigrationState = MigrationState.PENDING

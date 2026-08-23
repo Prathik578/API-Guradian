@@ -1,4 +1,5 @@
 """Aggregates code models into a project-level Dependency Graph."""
+
 import os
 
 from api_guardian.analysis.javascript.analyzer import JSTSAnalyzer
@@ -25,7 +26,7 @@ class GraphBuilder:
             for file in files:
                 file_path = os.path.join(root, file)
                 rel_path = os.path.relpath(file_path, workspace_path)
-                
+
                 module = None
                 if file.endswith(".py"):
                     with open(file_path, "r", encoding="utf-8") as f:
@@ -33,7 +34,7 @@ class GraphBuilder:
                 elif file.endswith((".js", ".ts", ".jsx", ".tsx")):
                     with open(file_path, "r", encoding="utf-8") as f:
                         module = self.js_analyzer.analyze_file(rel_path, f.read())
-                
+
                 if module:
                     graph.modules[rel_path] = module
 

@@ -19,5 +19,5 @@ __all__ = [
     "GraphBuilder",
     "Module",
     "Symbol",
-    "SymbolType"
+    "SymbolType",
 ]

@@ -8,5 +8,5 @@ __all__ = [
     "CircuitBreakerOpenError",
     "CircuitState",
     "CostController",
-    "TokenBudgetExceededError"
+    "TokenBudgetExceededError",
 ]

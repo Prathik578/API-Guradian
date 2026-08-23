@@ -666,3 +666,9 @@ class TestEndToEndMigrationFlow:
         # The case went through:
         # DISCOVERED → IMPACT_ANALYZING → AFFECTED_ACTION_REQUIRED → MIGRATING → VERIFYING → PR_OPEN
         # This is the exact happy path defined in the domain state machine.
+
+        # ---------------------------------------------------------------------------
+        # IDEMPOTENCY VERIFICATION
+        # ---------------------------------------------------------------------------
+        # (Verified in test_stripe_provider_flow.py and test_concurrent_case_creation.py)
+

@@ -1,4 +1,5 @@
 """Pull Request domain models."""
+
 import uuid
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -18,6 +19,7 @@ class PullRequestState(str, Enum):
 @dataclass
 class PullRequest:
     """GitHub PR created from a verified patch."""
+
     id: uuid.UUID
     case_id: uuid.UUID
     patch_artifact_id: uuid.UUID

@@ -21,7 +21,9 @@ from .organization import Organization, TenantContext
 from .provider_change import (
     CandidateChange,
     ChangeClassification,
+    EvidenceSource,
     ProviderChange,
+    ProviderChangeRevision,
     RawArtifact,
     VersionGraph,
 )
@@ -40,6 +42,7 @@ __all__ = [
     "ChangeClassification",
     "DomainError",
     "EvidenceLevel",
+    "EvidenceSource",
     "ImpactAssessment",
     "ImpactClassification",
     "InvalidStateTransitionError",
@@ -52,6 +55,7 @@ __all__ = [
     "Organization",
     "PatchArtifact",
     "ProviderChange",
+    "ProviderChangeRevision",
     "PullRequest",
     "PullRequestState",
     "RawArtifact",
@@ -65,5 +69,5 @@ __all__ = [
     "VerificationResult",
     "VerificationRun",
     "VerificationState",
-    "VersionGraph"
+    "VersionGraph",
 ]

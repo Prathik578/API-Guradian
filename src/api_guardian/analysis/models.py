@@ -1,4 +1,5 @@
 """Common Code Model for language-neutral representation."""
+
 from dataclasses import dataclass, field
 from enum import Enum
 
@@ -21,6 +22,7 @@ class CodeLocation:
 @dataclass
 class CallSite:
     """Represents a location where an API or function is invoked."""
+
     target_name: str
     location: CodeLocation
     context_snippet: str | None = None
@@ -29,6 +31,7 @@ class CallSite:
 @dataclass
 class Symbol:
     """Represents a defined entity (function, class) in the code."""
+
     name: str
     symbol_type: SymbolType
     location: CodeLocation
@@ -38,6 +41,7 @@ class Symbol:
 @dataclass
 class Module:
     """Represents a file or logical module."""
+
     path: str
     symbols: list[Symbol] = field(default_factory=list)
     imports: list[str] = field(default_factory=list)
@@ -46,6 +50,7 @@ class Module:
 @dataclass
 class DependencyEdge:
     """Represents a dependency relationship (e.g. customer code -> Provider API)."""
+
     source_file: str
     source_symbol: str
     target_provider: str
@@ -56,6 +61,7 @@ class DependencyEdge:
 @dataclass
 class DependencyGraph:
     """Project-level aggregation of dependencies."""
+
     repository_id: str
     commit_sha: str
     modules: dict[str, Module] = field(default_factory=dict)

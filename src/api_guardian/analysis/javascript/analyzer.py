@@ -1,11 +1,12 @@
 """JavaScript and TypeScript Analyzer."""
+
 from api_guardian.analysis.models import Module
 
 
 class JSTSAnalyzer:
     """Extracts the Common Code Model from JS/TS source files.
-    
-    In MVP, this could use a subprocess call to a Node.js script that 
+
+    In MVP, this could use a subprocess call to a Node.js script that
     runs babel/parser or tree-sitter, or it could be a stub.
     """
 

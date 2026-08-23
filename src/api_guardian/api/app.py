@@ -1,4 +1,5 @@
 """FastAPI Application."""
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -10,7 +11,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="API Guardian",
         description="Autonomous API maintenance control plane",
-        version="0.1.0"
+        version="0.1.0",
     )
 
     app.add_middleware(
@@ -20,7 +21,7 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    
+
     app.add_middleware(TenantIdentificationMiddleware)
 
     app.include_router(health.router, prefix="/health", tags=["system"])

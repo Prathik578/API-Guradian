@@ -1,4 +1,5 @@
 """Orchestrates LLM calls to generate patches."""
+
 import uuid
 
 from api_guardian.analysis.models import DependencyGraph
@@ -22,27 +23,25 @@ class PatchGenerator:
         change_description: str,
         affected_files: list[str],
         graph: DependencyGraph,
-        source_files: dict[str, str]
+        source_files: dict[str, str],
     ) -> PatchArtifact:
         """Generates a patch artifact using the reasoning model."""
         prompt = self.prompt_builder.build_migration_prompt(
             provider_name, change_description, affected_files, graph, source_files
         )
-        
+
         response_text, _, _ = self.llm.generate_completion(
-            role=LLMRole.MIGRATION_REASONING,
-            prompt_envelope=prompt,
-            max_tokens=4096
+            role=LLMRole.MIGRATION_REASONING, prompt_envelope=prompt, max_tokens=4096
         )
-        
+
         diff_blocks = self._parse_diffs(response_text)
-        
+
         return PatchArtifact(
             id=uuid.uuid4(),
             repository_id=repository_id,
             commit_sha=commit_sha,
             diff_blocks=diff_blocks,
-            explanation=response_text
+            explanation=response_text,
         )
 
     def _parse_diffs(self, response_text: str) -> list[DiffBlock]:

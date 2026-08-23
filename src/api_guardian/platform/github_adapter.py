@@ -1,4 +1,5 @@
 """GitHub Platform Adapter."""
+
 import uuid
 
 from api_guardian.application.interfaces.github import GitHubPlatform
@@ -14,7 +15,7 @@ class GitHubAdapter(GitHubPlatform):
         return {
             "Authorization": f"Bearer {installation_token}",
             "Accept": "application/vnd.github.v3+json",
-            "X-GitHub-Api-Version": "2022-11-28"
+            "X-GitHub-Api-Version": "2022-11-28",
         }
 
     def check_head_sha(self, repository_id: uuid.UUID, branch: str) -> str:
@@ -23,12 +24,12 @@ class GitHubAdapter(GitHubPlatform):
         return "dummy_sha_8f3d1"
 
     def push_patch_to_branch(
-        self, 
-        repository_id: uuid.UUID, 
-        base_sha: str, 
-        branch_name: str, 
-        files_to_update: dict[str, str], 
-        commit_message: str
+        self,
+        repository_id: uuid.UUID,
+        base_sha: str,
+        branch_name: str,
+        files_to_update: dict[str, str],
+        commit_message: str,
     ) -> str:
         # TODO: Implement Git Trees API to create blobs, tree, commit, and update ref
         # 1. Create blobs for each file in files_to_update
@@ -38,12 +39,7 @@ class GitHubAdapter(GitHubPlatform):
         return "new_dummy_sha_4b2c1"
 
     def open_pull_request(
-        self,
-        repository_id: uuid.UUID,
-        head_branch: str,
-        base_branch: str,
-        title: str,
-        body: str
+        self, repository_id: uuid.UUID, head_branch: str, base_branch: str, title: str, body: str
     ) -> tuple[int, str]:
         # TODO: Implement Pulls API call
         # POST /repos/{owner}/{repo}/pulls

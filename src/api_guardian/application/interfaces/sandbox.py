@@ -1,4 +1,5 @@
 """Sandbox Orchestrator interface (Port)."""
+
 import uuid
 from abc import ABC, abstractmethod
 
@@ -14,10 +15,10 @@ class SandboxOrchestrator(ABC):
         expected_snapshot_hash: str,
         expected_patch_hash: str,
         nonce: str,
-        signing_secret: str
+        signing_secret: str,
     ) -> str:
         """Launches a Fargate sandbox task with capabilities.
-        
+
         Returns:
             task_id (str): The execution platform's identifier for the task.
         """

@@ -1,4 +1,5 @@
 """SQLAlchemy Declarative Base and mixins."""
+
 import uuid
 from datetime import datetime
 
@@ -19,4 +20,5 @@ class TimestampMixin:
 
 class TenantMixin:
     """Mixin for models that belong to a specific tenant (organization)."""
+
     organization_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False, index=True)

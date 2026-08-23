@@ -1,18 +1,20 @@
 """GitHub Webhook routes."""
 
+import uuid
+
 from fastapi import APIRouter, Request
 
-from api_guardian.application.use_cases.sync_provider import SyncProviderUseCase
-
 router = APIRouter()
+
 
 @router.post("/github")
 async def github_webhook(request: Request) -> dict[str, str]:
     """Receives and queues GitHub webhooks."""
-    payload = await request.json()  # noqa: F841
+    payload = await request.json()
+
+    from api_guardian.workers.tasks.provider import sync_provider_task
     
-    use_case = SyncProviderUseCase(provider_repo=None, case_repo=None)  # noqa: F841
-    # We would execute the usecase here with actual tenant context
-    # use_case.execute(ctx, payload.get("provider", "GitHub"))
-    
+    tenant_id_str = str(uuid.uuid4()) # In real app, derived from auth/webhook secret
+    sync_provider_task.delay(tenant_id_str, payload)
+
     return {"status": "received"}
