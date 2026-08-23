@@ -43,9 +43,9 @@ ignore_missing_imports = true
 [tool.pyright]
 venvPath = "."
 venv = ".venv"
-extraPaths = ["src"]
+extraPaths = ["src", "."]
 
 [tool.pyrefly]
 venvPath = "."
 venv = ".venv"
-extraPaths = ["src"]
+extraPaths = ["src", "."]

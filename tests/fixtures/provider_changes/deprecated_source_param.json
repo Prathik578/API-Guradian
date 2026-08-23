@@ -1,0 +1,12 @@
+{
+    "provider": "Stripe",
+    "provider_native_id": "stripe-changelog-2024-06-deprecate-source",
+    "classification": "deprecation",
+    "summary": "The `source` parameter on `stripe.Charge.create()` is deprecated. Use `stripe.PaymentIntent.create()` with a `payment_method` parameter instead.",
+    "affected_entities": ["stripe.Charge.create"],
+    "deprecated_identifier": "source",
+    "replacement_identifier": "payment_method",
+    "replacement_api": "stripe.PaymentIntent.create",
+    "effective_date": "2024-06-01T00:00:00Z",
+    "sunset_date": "2025-01-01T00:00:00Z"
+}

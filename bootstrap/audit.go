@@ -1,9 +1,5 @@
 package main
 
-import (
-	"fmt"
-)
-
 type AuditResult struct {
 	Passed  bool
 	Reasons []string

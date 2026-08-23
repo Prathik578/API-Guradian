@@ -4,8 +4,8 @@ from typing import Any, cast
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 
-from api_guardian.domain import TenantContext
 from api_guardian.application.use_cases.assess_impact import AssessImpactUseCase
+from api_guardian.domain import TenantContext
 from api_guardian.workers.tasks.analysis import analyze_repository_task  # noqa: F401
 from api_guardian.workers.tasks.migration import generate_migration_task
 from api_guardian.workers.tasks.verification import execute_verification_task

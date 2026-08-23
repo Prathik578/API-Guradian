@@ -2,10 +2,10 @@
 import uuid
 from typing import Any
 
-from api_guardian.workers.celery_app import app
 from api_guardian.application.use_cases.generate_migration import GenerateMigrationUseCase
-from api_guardian.reasoning.patch_generator import PatchGenerator
 from api_guardian.domain import TenantContext
+from api_guardian.reasoning.patch_generator import PatchGenerator
+from api_guardian.workers.celery_app import app
 
 
 class MockLLMGateway:

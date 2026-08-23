@@ -1,11 +1,11 @@
 """Celery tasks for analysis."""
 import uuid
 
-from api_guardian.workers.celery_app import app
-from api_guardian.application.use_cases.analyze_repository import AnalyzeRepositoryUseCase
-from api_guardian.git.repository_manager import GitRepositoryManager
 from api_guardian.analysis.graph_builder import GraphBuilder
+from api_guardian.application.use_cases.analyze_repository import AnalyzeRepositoryUseCase
 from api_guardian.domain import TenantContext
+from api_guardian.git.repository_manager import GitRepositoryManager
+from api_guardian.workers.celery_app import app
 
 
 @app.task  # type: ignore[untyped-decorator]

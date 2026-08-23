@@ -2,10 +2,10 @@
 import uuid
 from typing import Any
 
-from api_guardian.workers.celery_app import app
 from api_guardian.application.use_cases.execute_verification import ExecuteVerificationUseCase
-from api_guardian.sandbox.orchestrator import FargateSandboxOrchestrator
 from api_guardian.domain import TenantContext
+from api_guardian.sandbox.orchestrator import FargateSandboxOrchestrator
+from api_guardian.workers.celery_app import app
 
 
 @app.task  # type: ignore[untyped-decorator]

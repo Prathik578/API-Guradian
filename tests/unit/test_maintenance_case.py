@@ -1,8 +1,11 @@
 """Unit tests for MaintenanceCase domain model."""
 import uuid
+
 import pytest
-from api_guardian.domain.maintenance import MaintenanceCase, MaintenanceCaseState
+
 from api_guardian.domain.exceptions import InvalidStateTransitionError
+from api_guardian.domain.maintenance import MaintenanceCase, MaintenanceCaseState
+
 
 def test_initial_state() -> None:
     case = MaintenanceCase(
