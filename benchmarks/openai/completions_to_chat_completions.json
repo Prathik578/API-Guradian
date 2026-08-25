@@ -1,0 +1,17 @@
+{
+  "provider": "openai",
+  "name": "completions_to_chat_completions",
+  "change_description": "The v1/completions API is deprecated. Migrate to v1/chat/completions.",
+  "expected_impact_classification": "confirmed_affected",
+  "fixtures": {
+    "src/llm.py": "import openai\n\nopenai.api_key = 'sk-123'\n\ndef complete():\n    return openai.Completion.create(model='text-davinci-003', prompt='Hello')\n"
+  },
+  "expected_symbols_affected": [
+    "openai.Completion.create"
+  ],
+  "acceptance_criteria": [
+    "No references to openai.Completion.create remain.",
+    "References to openai.ChatCompletion.create are added.",
+    "Messages array structure is constructed from prompt."
+  ]
+}

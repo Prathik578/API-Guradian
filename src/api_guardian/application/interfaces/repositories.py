@@ -15,6 +15,7 @@ from api_guardian.domain import (
     TenantContext,
     VerificationRun,
 )
+from api_guardian.domain.maintenance import ImpactAssessment
 from api_guardian.domain.migration import MigrationAttempt, PatchArtifact
 
 
@@ -31,6 +32,16 @@ class MaintenanceCaseRepository(ABC):
     def list_active_cases(
         self, ctx: TenantContext, repository_id: uuid.UUID
     ) -> Sequence[MaintenanceCase]:
+        pass
+
+
+class ImpactAssessmentRepository(ABC):
+    @abstractmethod
+    def save(self, ctx: TenantContext, assessment: ImpactAssessment) -> ImpactAssessment:
+        pass
+
+    @abstractmethod
+    def get_by_case_id(self, ctx: TenantContext, case_id: uuid.UUID) -> ImpactAssessment | None:
         pass
 
 
@@ -104,6 +115,14 @@ class MigrationRepository(ABC):
 
     @abstractmethod
     def save_attempt(self, ctx: TenantContext, attempt: "MigrationAttempt") -> None:
+        pass
+
+    @abstractmethod
+    def get_latest_attempt_for_case(self, ctx: TenantContext, case_id: uuid.UUID) -> MigrationAttempt | None:
+        pass
+
+    @abstractmethod
+    def get_patch(self, ctx: TenantContext, patch_id: uuid.UUID) -> PatchArtifact | None:
         pass
 
 

@@ -16,6 +16,7 @@ class SandboxOrchestrator(ABC):
         expected_patch_hash: str,
         nonce: str,
         signing_secret: str,
+        pre_image_hashes: dict[str, str],
     ) -> str:
         """Launches a Fargate sandbox task with capabilities.
 

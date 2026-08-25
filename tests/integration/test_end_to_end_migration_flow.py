@@ -53,11 +53,9 @@ from api_guardian.reasoning.models import DiffBlock
 
 # -- Real reasoning engine (with fake LLM) --
 from api_guardian.reasoning.patch_generator import PatchGenerator
-from tests.fakes.fake_github_adapter import FakeGitHubAdapter  # type: ignore
-
-# -- Fakes --
-from tests.fakes.fake_llm_gateway import FakeLLMGateway  # type: ignore
-from tests.fakes.fake_repositories import (  # type: ignore
+from tests.fakes.fake_github_adapter import FakeGitHubAdapter
+from tests.fakes.fake_llm_gateway import FakeLLMGateway
+from tests.fakes.fake_repositories import (
     InMemoryMaintenanceCaseRepository,
     InMemoryMigrationRepository,
     InMemoryProviderChangeRepository,
@@ -345,7 +343,7 @@ class TestEndToEndMigrationFlow:
         patch_generator = PatchGenerator(llm_gateway=fake_llm)
 
         graph_builder = GraphBuilder()
-        graph = graph_builder.build_graph(
+        graph_builder.build_graph(
             repository_id=str(self.repo_id),
             commit_sha=self.base_commit_sha,
             workspace_path=str(REPO_FIXTURE_DIR),
@@ -360,7 +358,7 @@ class TestEndToEndMigrationFlow:
             provider_name=change.provider,
             change_description=change.summary,
             affected_files=affected_files,
-            graph=graph,
+            evidence={"mock": "evidence"},
             source_files=source_files,
         )
 
@@ -519,6 +517,7 @@ class TestEndToEndMigrationFlow:
         # (reasoning model shape). We adapt by creating a thin wrapper.
         class PatchArtifactAdapter:
             def __init__(self, domain_patch: PatchArtifact) -> None:
+                self.id = domain_patch.id
                 entries = json.loads(domain_patch.patch_data)
                 self.diff_blocks = [
                     DiffBlock(
@@ -534,6 +533,8 @@ class TestEndToEndMigrationFlow:
         fake_github = FakeGitHubAdapter(head_sha=self.base_commit_sha)
         use_case = CreatePullRequestUseCase(
             case_repo=self.case_repo,
+            migration_repo=self.migration_repo,
+            verification_repo=self.verification_repo,
             github_platform=fake_github,
         )
 

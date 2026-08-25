@@ -1,8 +1,8 @@
 """Orchestrates LLM calls to generate patches."""
 
 import uuid
+from typing import Any
 
-from api_guardian.analysis.models import DependencyGraph
 from api_guardian.application.interfaces.llm import LLMGateway, LLMRole
 from api_guardian.reasoning.models import DiffBlock, PatchArtifact
 from api_guardian.reasoning.prompt_builder import PromptBuilder
@@ -22,16 +22,19 @@ class PatchGenerator:
         provider_name: str,
         change_description: str,
         affected_files: list[str],
-        graph: DependencyGraph,
+        evidence: dict[str, Any],
         source_files: dict[str, str],
     ) -> PatchArtifact:
         """Generates a patch artifact using the reasoning model."""
         prompt = self.prompt_builder.build_migration_prompt(
-            provider_name, change_description, affected_files, graph, source_files
+            provider_name, change_description, affected_files, evidence, source_files
         )
 
+        from api_guardian.domain.quotas import ResourcePolicy
+        policy = ResourcePolicy.get_default()
+
         response_text, _, _ = self.llm.generate_completion(
-            role=LLMRole.MIGRATION_REASONING, prompt_envelope=prompt, max_tokens=4096
+            role=LLMRole.MIGRATION_REASONING, prompt_envelope=prompt, max_tokens=policy.migration.max_model_tokens
         )
 
         diff_blocks = self._parse_diffs(response_text)

@@ -1,0 +1,97 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'API Guardian Sandbox Infrastructure'
+
+Parameters:
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC for Sandbox Isolation
+  SubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: Isolated Subnet with proxy-only or NAT egress
+
+Resources:
+  SandboxCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: api-guardian-sandbox
+      CapacityProviders:
+        - FARGATE
+
+  SandboxExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: api-guardian-sandbox-execution
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+
+  SandboxSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: api-guardian-sandbox-sg
+      GroupDescription: Security group for isolated sandbox tasks
+      VpcId: !Ref VpcId
+      SecurityGroupIngress: [] # NO INBOUND TRAFFIC ALLOWED
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+          Description: Allow HTTPS egress for artifact retrieval and webhook callbacks
+        - IpProtocol: tcp
+          FromPort: 53
+          ToPort: 53
+          CidrIp: 0.0.0.0/0
+          Description: Allow DNS resolution
+
+  SandboxTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: api-guardian-sandbox
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu: '1024'
+      Memory: '2048'
+      ExecutionRoleArn: !GetAtt SandboxExecutionRole.Arn
+      # CRITICAL INVARIANT: No TaskRoleArn specified. The container has NO AWS credentials.
+      ContainerDefinitions:
+        - Name: api-guardian-bootstrap
+          Image: api-guardian-sandbox:latest
+          Essential: true
+          User: "1000:1000"
+          LinuxParameters:
+            Drop:
+              - ALL
+          # ReadonlyRootFilesystem to prevent tampering
+          ReadonlyRootFilesystem: true
+          # Bounded temporary storage
+          MountPoints:
+            - SourceVolume: workspace
+              ContainerPath: /workspace
+          Environment:
+            - Name: WORKSPACE_DIR
+              Value: /workspace
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: /ecs/api-guardian-sandbox
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: sandbox
+
+      Volumes:
+        - Name: workspace
+
+Outputs:
+  ClusterName:
+    Value: !Ref SandboxCluster
+  TaskDefinitionArn:
+    Value: !Ref SandboxTaskDefinition
+  SecurityGroupId:
+    Value: !Ref SandboxSecurityGroup

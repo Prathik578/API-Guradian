@@ -76,6 +76,7 @@ class MaintenanceCase:
             MaintenanceCaseState.IMPACT_ANALYZING: [
                 MaintenanceCaseState.UNAFFECTED,
                 MaintenanceCaseState.AFFECTED_ACTION_REQUIRED,
+                MaintenanceCaseState.MANUALLY_RESOLVED,
                 MaintenanceCaseState.CANCELLED,
             ],
             MaintenanceCaseState.AFFECTED_ACTION_REQUIRED: [

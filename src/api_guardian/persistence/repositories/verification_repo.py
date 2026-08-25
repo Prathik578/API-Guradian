@@ -40,6 +40,8 @@ class SQLVerificationRepository(VerificationRepository):
                 state=model.state,
                 verification_plan=plan,
                 result=result,
+                signing_secret=model.signing_secret,
+                nonce=model.nonce,
             )
 
     def save_run(self, ctx: TenantContext, run: VerificationRun) -> None:
@@ -56,6 +58,8 @@ class SQLVerificationRepository(VerificationRepository):
                 session.add(model)
             model.sandbox_task_id = run.sandbox_task_id
             model.state = run.state
+            model.signing_secret = run.signing_secret
+            model.nonce = run.nonce
             
             if run.verification_plan:
                 model.verification_plan = dataclasses.asdict(run.verification_plan)

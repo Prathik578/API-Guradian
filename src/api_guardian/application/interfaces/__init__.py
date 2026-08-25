@@ -3,6 +3,7 @@
 from .github import GitHubPlatform
 from .llm import LLMGateway, LLMRole
 from .repositories import (
+    ImpactAssessmentRepository,
     MaintenanceCaseRepository,
     MigrationRepository,
     ProviderChangeRepository,
@@ -17,6 +18,7 @@ from .storage import ArtifactStoragePort
 __all__ = [
     "ArtifactStoragePort",
     "GitHubPlatform",
+    "ImpactAssessmentRepository",
     "LLMGateway",
     "LLMRole",
     "MaintenanceCaseRepository",

@@ -11,6 +11,14 @@ class SymbolType(str, Enum):
     IMPORT = "import"
 
 
+class EvidenceLevel(str, Enum):
+    DIRECT = "DIRECT"
+    ALIAS = "ALIAS"
+    WRAPPER = "WRAPPER"
+    HEURISTIC = "HEURISTIC"
+    UNRESOLVED = "UNRESOLVED"
+
+
 @dataclass
 class CodeLocation:
     line_start: int
@@ -26,6 +34,7 @@ class CallSite:
     target_name: str
     location: CodeLocation
     context_snippet: str | None = None
+    evidence_level: str = EvidenceLevel.DIRECT
 
 
 @dataclass
@@ -56,6 +65,7 @@ class DependencyEdge:
     target_provider: str
     target_entity: str
     call_site: CallSite
+    evidence_level: str = EvidenceLevel.DIRECT
 
 
 @dataclass

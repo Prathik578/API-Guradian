@@ -19,6 +19,19 @@ class DatabaseManager:
 
 
     @contextmanager
+    def get_session(self) -> Generator[Session, None, None]:
+        """Provides an unscoped database session."""
+        session = self.SessionLocal()
+        try:
+            yield session
+            session.commit()
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+    @contextmanager
     def get_tenant_session(self, ctx: TenantContext) -> Generator[Session, None, None]:
         """Provides a database session scoped to the tenant using PostgreSQL RLS."""
         session = self.SessionLocal()

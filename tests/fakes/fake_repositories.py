@@ -100,11 +100,29 @@ class InMemoryMigrationRepository(MigrationRepository):
     def save_campaign(self, ctx: TenantContext, campaign: MigrationCampaign) -> None:
         self._campaigns[campaign.id] = campaign
 
+    def get_latest_campaign(self, ctx: TenantContext, case_id: uuid.UUID) -> MigrationCampaign | None:
+        campaigns = [c for c in self._campaigns.values() if c.case_id == case_id]
+        if not campaigns:
+            return None
+        return campaigns[-1]
+
     def save_patch(self, ctx: TenantContext, patch: "PatchArtifact") -> None:
         self._patches[patch.id] = patch
 
     def save_attempt(self, ctx: TenantContext, attempt: "MigrationAttempt") -> None:
         self._attempts[attempt.id] = attempt
+
+    def get_latest_attempt_for_case(self, ctx: TenantContext, case_id: uuid.UUID) -> MigrationAttempt | None:
+        campaign = next((c for c in self._campaigns.values() if c.case_id == case_id), None)
+        if not campaign:
+            return None
+        attempts = [a for a in self._attempts.values() if a.campaign_id == campaign.id]
+        if not attempts:
+            return None
+        return sorted(attempts, key=lambda a: a.created_at, reverse=True)[0]
+
+    def get_patch(self, ctx: TenantContext, patch_id: uuid.UUID) -> PatchArtifact | None:
+        return self._patches.get(patch_id)
 
 
 class InMemoryVerificationRepository(VerificationRepository):
@@ -116,6 +134,12 @@ class InMemoryVerificationRepository(VerificationRepository):
 
     def save_run(self, ctx: TenantContext, run: VerificationRun) -> None:
         self._runs[run.id] = run
+
+    def get_by_patch_id(self, ctx: TenantContext, patch_artifact_id: uuid.UUID) -> VerificationRun | None:
+        for run in self._runs.values():
+            if run.patch_artifact_id == patch_artifact_id:
+                return run
+        return None
 
 
 class InMemoryPullRequestRepository(PullRequestRepository):

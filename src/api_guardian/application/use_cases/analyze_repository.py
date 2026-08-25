@@ -5,6 +5,7 @@ import uuid
 
 from api_guardian.analysis.graph_builder import GraphBuilder
 from api_guardian.application.interfaces import SnapshotRepository
+from api_guardian.application.interfaces.storage import ArtifactStoragePort
 from api_guardian.domain import RepositoryRevision, RepositorySnapshot, TenantContext
 from api_guardian.git.repository_manager import GitRepositoryManager
 
@@ -17,10 +18,12 @@ class AnalyzeRepositoryUseCase:
         snapshot_repo: SnapshotRepository,
         git_manager: GitRepositoryManager,
         graph_builder: GraphBuilder,
+        artifact_storage: ArtifactStoragePort,
     ) -> None:
         self.snapshot_repo = snapshot_repo
         self.git_manager = git_manager
         self.graph_builder = graph_builder
+        self.artifact_storage = artifact_storage
 
     def execute(
         self,
@@ -34,18 +37,22 @@ class AnalyzeRepositoryUseCase:
         from pathlib import Path
 
         archive_path_str = self.git_manager.acquire_snapshot(clone_url, commit_sha)
-        archive_path = Path(archive_path_str) if archive_path_str else None
-
-        # Using archive_path as workspace for graph builder for now
-        workspace_path = str(archive_path.parent) if archive_path else "/tmp/mock_workspace"
+        if not archive_path_str:
+            raise RuntimeError("Failed to acquire repository snapshot.")
+            
+        archive_path = Path(archive_path_str)
+        workspace_path = str(archive_path.parent)
 
         graph = self.graph_builder.build_graph(str(repository_id), commit_sha, workspace_path)
 
-        # Compute a dummy hash if archive_path doesn't exist, else real hash
-        archive_hash = (
-            hashlib.sha256(b"mock_archive").hexdigest()
-            if not archive_path
-            else hashlib.sha256(archive_path.read_bytes()).hexdigest()
+        if not archive_path.exists():
+            raise RuntimeError(f"Snapshot archive missing at {archive_path}")
+
+        archive_hash = self.artifact_storage.put_snapshot(
+            tenant_id=str(ctx.tenant_id),
+            repository_id=str(repository_id),
+            commit_sha=commit_sha,
+            archive_path=str(archive_path),
         )
 
         snapshot = RepositorySnapshot(

@@ -79,5 +79,8 @@ class VerificationRun:
     sandbox_task_id: str | None = None
     state: VerificationState = VerificationState.QUEUED
     result: VerificationResult | None = None
+    audit_passed: bool | None = None
+    signing_secret: str | None = None
+    nonce: str | None = None
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))

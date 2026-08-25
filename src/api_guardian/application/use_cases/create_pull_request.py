@@ -11,8 +11,10 @@ from api_guardian.platform.pr_templates import PRTemplateBuilder
 class CreatePullRequestUseCase:
     """Validates target HEAD, checks non-stale, opens GitHub PR."""
 
-    def __init__(self, case_repo: Any, github_platform: GitHubPlatform) -> None:
+    def __init__(self, case_repo: Any, migration_repo: Any, verification_repo: Any, github_platform: GitHubPlatform) -> None:
         self.case_repo = case_repo
+        self.migration_repo = migration_repo
+        self.verification_repo = verification_repo
         self.github_platform = github_platform
 
     def execute(
@@ -24,11 +26,27 @@ class CreatePullRequestUseCase:
         if not case:
             raise ValueError("Case not found")
 
+        # 1. MaintenanceCase is actionable
+        if case.state != MaintenanceCaseState.VERIFYING:
+            raise RuntimeError(f"Case {case_id} is in state {case.state}, expected VERIFYING before PR_OPEN")
+
+        # 2. current target HEAD == verified revision
         current_head = self.github_platform.check_head_sha(case.repository_id, "main")
         if current_head != case.base_revision_sha:
             case.transition_to(MaintenanceCaseState.STALE)
             self.case_repo.save(ctx, case)
             raise RuntimeError("Repository HEAD advanced. Case is stale.")
+
+        # 3. No competing campaign (implicit in getting the active campaign)
+        campaign = self.migration_repo.get_latest_campaign(ctx, case_id)
+        if not campaign:
+            raise RuntimeError("No active migration campaign found.")
+
+        # 4 & 5. VerificationRun == Verified and PatchArtifact == verified artifact
+        verification_run = self.verification_repo.get_by_patch_id(ctx, patch_artifact.id)
+        from api_guardian.domain.verification import VerificationState
+        if not verification_run or verification_run.state != VerificationState.VERIFIED:
+            raise RuntimeError(f"Patch artifact {patch_artifact.id} has not been successfully verified.")
 
         branch_name = f"api-guardian/patch-{case_id.hex[:8]}"
         files_to_update = {

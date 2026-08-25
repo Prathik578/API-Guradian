@@ -6,9 +6,9 @@ from typing import Any, cast
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from api_guardian.domain import TenantContext
+from api_guardian.persistence.database import db_manager
+from api_guardian.persistence.outbox import OutboxManager
 from api_guardian.workers.tasks.analysis import analyze_repository_task  # noqa: F401
-from api_guardian.workers.tasks.migration import generate_migration_task
-from api_guardian.workers.tasks.verification import execute_verification_task
 
 router = APIRouter()
 
@@ -41,8 +41,12 @@ async def assess_impact(
     # Assuming snapshot_id would come from the body, for MVP we'll just mock it if not present
     snapshot_id = uuid.uuid4()
     
-    from api_guardian.workers.tasks.analysis import assess_impact_task
-    assess_impact_task.delay(str(ctx.tenant_id), str(case_id), str(snapshot_id))
+    with db_manager.get_tenant_session(ctx) as session:
+        OutboxManager.schedule_task(
+            session,
+            "api_guardian.workers.tasks.analysis.assess_impact_task",
+            {"tenant_id": str(ctx.tenant_id), "case_id": str(case_id), "snapshot_id": str(snapshot_id)}
+        )
     
     return {"status": "queued"}
 
@@ -52,7 +56,12 @@ async def trigger_migration(
     case_id: uuid.UUID, ctx: TenantContext = Depends(get_tenant_context)
 ) -> dict[str, str]:
     """Asynchronously triggers migration generation."""
-    generate_migration_task.delay(str(ctx.tenant_id), str(case_id))
+    with db_manager.get_tenant_session(ctx) as session:
+        OutboxManager.schedule_task(
+            session,
+            "api_guardian.workers.tasks.migration.generate_migration_task",
+            {"tenant_id": str(ctx.tenant_id), "case_id": str(case_id)}
+        )
     return {"status": "queued"}
 
 
@@ -61,5 +70,10 @@ async def trigger_verification(
     case_id: uuid.UUID, ctx: TenantContext = Depends(get_tenant_context)
 ) -> dict[str, str]:
     """Asynchronously triggers sandbox verification."""
-    execute_verification_task.delay(str(ctx.tenant_id), str(case_id))
+    with db_manager.get_tenant_session(ctx) as session:
+        OutboxManager.schedule_task(
+            session,
+            "api_guardian.workers.tasks.verification.execute_verification_task",
+            {"tenant_id": str(ctx.tenant_id), "case_id": str(case_id)}
+        )
     return {"status": "queued"}

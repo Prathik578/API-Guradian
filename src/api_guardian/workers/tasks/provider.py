@@ -31,14 +31,25 @@ class S3ArtifactStorage(S3StorageAdapter, ArtifactStoragePort):
         response = self.s3_client.get_object(Bucket=self.bucket_name, Key=key)
         return response['Body'].read()
 
+    def put_snapshot(self, tenant_id: str, repository_id: str, commit_sha: str, archive_path: str) -> str:
+        raise NotImplementedError()
+
+    def get_snapshot(self, tenant_id: str, repository_id: str, commit_sha: str, expected_hash: str | None = None) -> str:
+        raise NotImplementedError("Use dedicated S3ArtifactStorage")
+
+    def put_patch(self, tenant_id: str, patch_id: str, patch_data: str) -> str:
+        raise NotImplementedError("Use dedicated S3ArtifactStorage")
+
+    def get_patch(self, tenant_id: str, patch_id: str, expected_hash: str | None = None) -> str:
+        raise NotImplementedError("Use dedicated S3ArtifactStorage")
+
+    def generate_consumable_input_capability(self, tenant_id: str, artifact_type: str, artifact_id: str) -> str:
+        raise NotImplementedError()
+
 
 @app.task(bind=True, max_retries=3)  # type: ignore[untyped-decorator]
 def sync_provider_task(self: Any, tenant_id_str: str, payload: dict[str, Any]) -> None:
-    try:
-        pass
-    except Exception as e:
-        logger.error(f"Failed to sync provider payload: {e}")
-        raise
+    raise NotImplementedError("Specific provider sync workers should be used.")
 
 
 @app.task(bind=True, max_retries=5)  # type: ignore[untyped-decorator]

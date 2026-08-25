@@ -1,0 +1,17 @@
+{
+  "provider": "stripe",
+  "name": "charges_to_payment_intents",
+  "change_description": "The Charges API is deprecated. Migrate to the PaymentIntents API.",
+  "expected_impact_classification": "confirmed_affected",
+  "fixtures": {
+    "src/index.js": "const stripe = require('stripe')('sk_test_123');\n\nasync function createCharge() {\n  return await stripe.charges.create({\n    amount: 2000,\n    currency: 'usd',\n    source: 'tok_visa',\n  });\n}\n"
+  },
+  "expected_symbols_affected": [
+    "stripe.charges.create"
+  ],
+  "acceptance_criteria": [
+    "No references to stripe.charges.create remain.",
+    "References to stripe.paymentIntents.create are added.",
+    "Amount and currency parameters are correctly mapped."
+  ]
+}

@@ -16,13 +16,14 @@ class FargateSandboxOrchestrator(SandboxOrchestrator):
         task_definition: str,
         subnets: list[str],
         security_groups: list[str],
+        region_name: str = "us-east-1"
     ):
         self.cluster_name = cluster_name
         self.task_definition = task_definition
         self.subnets = subnets
         self.security_groups = security_groups
-        # The region should be configured via environment variables normally.
-        self.ecs_client = boto3.client("ecs")
+        self.region_name = region_name
+        self.ecs_client = boto3.client("ecs", region_name=self.region_name)
 
     def launch_verification_task(
         self,
@@ -34,20 +35,26 @@ class FargateSandboxOrchestrator(SandboxOrchestrator):
         expected_patch_hash: str,
         nonce: str,
         signing_secret: str,
+        pre_image_hashes: dict[str, str],
     ) -> str:
         """Launches the bootstrap container with capabilities."""
 
         # Inject the capabilities strictly via environment overrides
+        import json
         env_vars = [
             {"name": "SNAPSHOT_URL", "value": snapshot_url},
             {"name": "PATCH_URL", "value": patch_url},
             {"name": "RESULT_URL", "value": result_url},
             {"name": "EXPECTED_SNAPSHOT_HASH", "value": expected_snapshot_hash},
             {"name": "EXPECTED_PATCH_HASH", "value": expected_patch_hash},
+            {"name": "PRE_IMAGE_HASHES", "value": json.dumps(pre_image_hashes)},
             {"name": "ATTEMPT_ID", "value": str(attempt_id)},
             {"name": "NONCE", "value": nonce},
             {"name": "SIGNING_SECRET", "value": signing_secret},
         ]
+
+        from api_guardian.domain.quotas import ResourcePolicy
+        policy = ResourcePolicy.get_default()
 
         response = self.ecs_client.run_task(
             cluster=self.cluster_name,
@@ -62,6 +69,8 @@ class FargateSandboxOrchestrator(SandboxOrchestrator):
                 }
             },
             overrides={
+                "cpu": str(policy.sandbox.max_cpu_shares),
+                "memory": str(policy.sandbox.max_memory_mb),
                 "containerOverrides": [{"name": "api-guardian-bootstrap", "environment": env_vars}]
             },
         )

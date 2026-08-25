@@ -21,6 +21,20 @@ class MigrationState(str, Enum):
 
 
 @dataclass
+class MigrationScope:
+    """Explicitly bounds the files and limits allowed in a patch."""
+
+    allowed_source_files: set[str]
+    allowed_directories: set[str]
+    tests_modification_allowed: bool
+    allowed_test_files: set[str]
+    allowed_config_modifications: set[str]
+    allowed_dependency_modifications: set[str]
+    max_changed_files: int
+    max_changed_lines: int
+
+
+@dataclass
 class PatchArtifact:
     """Immutable patch bound to a specific repository and commit."""
 
@@ -30,6 +44,8 @@ class PatchArtifact:
     archive_content_hash: str
     affected_files: list[str]
     patch_data: str
+    patch_hash: str | None = None
+    pre_image_hashes: dict[str, str] | None = None
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 

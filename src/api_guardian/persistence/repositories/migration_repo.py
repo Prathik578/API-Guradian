@@ -40,6 +40,25 @@ class SQLMigrationRepository(MigrationRepository):
                 session.add(model)
             model.state = campaign.state
 
+    def get_latest_campaign(
+        self, ctx: TenantContext, case_id: uuid.UUID
+    ) -> MigrationCampaign | None:
+        with self.db_manager.get_tenant_session(ctx) as session:
+            from sqlalchemy import select
+            model = session.scalar(
+                select(MigrationCampaignModel)
+                .where(MigrationCampaignModel.case_id == case_id)
+                .order_by(MigrationCampaignModel.created_at.desc())
+                .limit(1)
+            )
+            if not model:
+                return None
+            return MigrationCampaign(
+                id=model.id,
+                case_id=model.case_id,
+                state=model.state,
+            )
+
     def save_patch(self, ctx: TenantContext, patch: "PatchArtifact") -> None:
         with self.db_manager.get_tenant_session(ctx) as session:
             model = session.get(PatchArtifactModel, patch.id)
@@ -70,3 +89,44 @@ class SQLMigrationRepository(MigrationRepository):
                     completion_tokens=attempt.completion_tokens,
                 )
                 session.add(model)
+
+    def get_latest_attempt_for_case(self, ctx: TenantContext, case_id: uuid.UUID) -> MigrationAttempt | None:
+        with self.db_manager.get_tenant_session(ctx) as session:
+            # For MVP, just get the latest attempt joining on campaign where case_id matches
+            # This is simple using SQLAlchemy select
+            from sqlalchemy import select
+            stmt = (
+                select(MigrationAttemptModel)
+                .join(MigrationCampaignModel)
+                .where(MigrationCampaignModel.case_id == case_id)
+                .order_by(MigrationAttemptModel.created_at.desc())
+                .limit(1)
+            )
+            model = session.scalar(stmt)
+            if not model:
+                return None
+            return MigrationAttempt(
+                id=model.id,
+                campaign_id=model.campaign_id,
+                model_name=model.model_name,
+                prompt_tokens=model.prompt_tokens,
+                completion_tokens=model.completion_tokens,
+                patch_artifact_id=model.patch_artifact_id,
+                error_reason=model.error_reason,
+            )
+
+    def get_patch(self, ctx: TenantContext, patch_id: uuid.UUID) -> PatchArtifact | None:
+        with self.db_manager.get_tenant_session(ctx) as session:
+            model = session.get(PatchArtifactModel, patch_id)
+            if not model:
+                return None
+            return PatchArtifact(
+                id=model.id,
+                repository_id=model.repository_id,
+                base_commit_sha=model.base_commit_sha,
+                archive_content_hash=model.archive_content_hash,
+                affected_files=list(model.affected_files),
+                patch_data=model.patch_data,
+                patch_hash=model.patch_hash,
+                pre_image_hashes=dict(model.pre_image_hashes) if model.pre_image_hashes else None,
+            )

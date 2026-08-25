@@ -3,7 +3,7 @@
 import uuid
 from typing import Any
 
-from sqlalchemy import JSON, ForeignKey, Integer, String, UniqueConstraint, Uuid, text
+from sqlalchemy import JSON, Boolean, ForeignKey, Integer, String, UniqueConstraint, Uuid, text
 from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -58,6 +58,21 @@ class MaintenanceCaseModel(Base, TimestampMixin, TenantMixin):
     state: Mapped[MaintenanceCaseState] = mapped_column(
         SQLEnum(MaintenanceCaseState), nullable=False
     )
+
+
+class ImpactAssessmentModel(Base, TimestampMixin, TenantMixin):
+    __tablename__ = "impact_assessments"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True)
+    case_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("maintenance_cases.id"), nullable=False
+    )
+    snapshot_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("snapshots.id"), nullable=False
+    )
+    classification: Mapped[str] = mapped_column(String(50), nullable=False)
+    evidence_level: Mapped[str] = mapped_column(String(50), nullable=False)
+    affected_files: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    evidence_payload: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False)
 
 
 class MigrationCampaignModel(Base, TimestampMixin, TenantMixin):
@@ -131,6 +146,8 @@ class PatchArtifactModel(Base, TimestampMixin, TenantMixin):
     archive_content_hash: Mapped[str] = mapped_column(String(64), nullable=False)
     affected_files: Mapped[list[str]] = mapped_column(JSON, nullable=False)
     patch_data: Mapped[str] = mapped_column(String, nullable=False)
+    patch_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    pre_image_hashes: Mapped[dict[str, str] | None] = mapped_column(JSON, nullable=True)
 
 
 class MigrationAttemptModel(Base, TimestampMixin, TenantMixin):
@@ -145,6 +162,7 @@ class MigrationAttemptModel(Base, TimestampMixin, TenantMixin):
     model_name: Mapped[str] = mapped_column(String(255), nullable=False)
     prompt_tokens: Mapped[int] = mapped_column(Integer, nullable=False)
     completion_tokens: Mapped[int] = mapped_column(Integer, nullable=False)
+    error_reason: Mapped[str | None] = mapped_column(String, nullable=True)
 
 
 class VerificationRunModel(Base, TimestampMixin, TenantMixin):
@@ -160,6 +178,9 @@ class VerificationRunModel(Base, TimestampMixin, TenantMixin):
     state: Mapped[VerificationState] = mapped_column(SQLEnum(VerificationState), nullable=False)
     verification_plan: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
     result_data: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+    audit_passed: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    signing_secret: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    nonce: Mapped[str | None] = mapped_column(String(64), nullable=True)
 
 
 class PullRequestModel(Base, TimestampMixin, TenantMixin):
@@ -179,3 +200,38 @@ class PullRequestModel(Base, TimestampMixin, TenantMixin):
     head_branch: Mapped[str] = mapped_column(String(255), nullable=False)
     base_branch: Mapped[str] = mapped_column(String(255), nullable=False)
     state: Mapped[str] = mapped_column(String(50), nullable=False)
+
+
+class TaskOutboxModel(Base, TimestampMixin):
+    __tablename__ = "task_outbox"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    task_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    payload: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False)
+    dispatched_at: Mapped[Any | None] = mapped_column(String(50), nullable=True)
+
+
+class WebhookDeliveryModel(Base, TimestampMixin):
+    __tablename__ = "webhook_deliveries"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    delivery_id: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    event_type: Mapped[str] = mapped_column(String(100), nullable=False)
+    payload_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+
+
+class CircuitBreakerStateModel(Base, TimestampMixin):
+    __tablename__ = "circuit_breaker_states"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    service_name: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    state: Mapped[str] = mapped_column(String(50), nullable=False, default="CLOSED")
+    consecutive_failures: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    last_failure_time: Mapped[Any | None] = mapped_column(String(50), nullable=True)
+
+
+class ResourceLeaseModel(Base, TimestampMixin, TenantMixin):
+    __tablename__ = "resource_leases"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    resource_type: Mapped[str] = mapped_column(String(255), nullable=False)
+    worker_id: Mapped[str] = mapped_column(String(255), nullable=False)
+    expires_at: Mapped[Any] = mapped_column(String(50), nullable=False)
+
+
