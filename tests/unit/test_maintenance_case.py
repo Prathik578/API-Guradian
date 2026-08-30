@@ -32,7 +32,7 @@ def test_valid_transitions() -> None:
     
     # IMPACT_ANALYZING -> AFFECTED_ACTION_REQUIRED
     case.transition_to(MaintenanceCaseState.AFFECTED_ACTION_REQUIRED)
-    assert case.state == MaintenanceCaseState.AFFECTED_ACTION_REQUIRED
+    assert case.state == MaintenanceCaseState.AFFECTED_ACTION_REQUIRED  # type: ignore
     
     # AFFECTED_ACTION_REQUIRED -> MIGRATING
     case.transition_to(MaintenanceCaseState.MIGRATING)

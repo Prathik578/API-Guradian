@@ -18,7 +18,6 @@ logger = logging.getLogger(__name__)
 @app.task(bind=True, max_retries=3)  # type: ignore[untyped-decorator]
 def execute_verification_task(self: Any, tenant_id: str, case_id: str) -> None:
     from api_guardian.domain import MaintenanceCaseState
-    from api_guardian.persistence.database import db_manager
     from api_guardian.persistence.repositories.maintenance_case_repo import (
         SQLMaintenanceCaseRepository,
     )

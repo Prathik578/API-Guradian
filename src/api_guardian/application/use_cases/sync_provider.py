@@ -123,8 +123,53 @@ class SyncProviderUseCase:
                     # This is acceptable for MVP.
                     pass
 
-            # In a real system, we'd loop over active repositories.
-            # We don't have a "get all repos" method yet, so we'll mock this for now or skip.
-            # But the plan says: For each registered repository: case_repo.save(MaintenanceCase)
-            # Since we can't fetch all repos easily without a repo port, we will just log it for the MVP Provider phase.
-            logger.info(f"Processed ProviderChange {change.id} (revision {change.revision})")
+            # Iterate over all repositories across all tenants to create cases
+            from api_guardian.persistence.database import db_manager
+            from api_guardian.persistence.models.tables import RepositoryModel, MaintenanceCaseModel
+            from api_guardian.domain import MaintenanceCaseState
+            from sqlalchemy import select
+            
+            with db_manager.SessionLocal() as session:
+                repos = session.execute(select(RepositoryModel)).scalars().all()
+                for repo in repos:
+                    # Check if case exists
+                    existing_case = session.execute(
+                        select(MaintenanceCaseModel).where(
+                            MaintenanceCaseModel.repository_id == repo.id,
+                            MaintenanceCaseModel.provider_change_id == change.id,
+                            MaintenanceCaseModel.base_revision_sha == repo.default_branch # we don't have the sha yet, just put dummy or fetch real
+                        )
+                    ).scalars().first()
+                    
+                    if not existing_case:
+                        case = MaintenanceCaseModel(
+                            id=uuid.uuid4(),
+                            organization_id=repo.organization_id,
+                            repository_id=repo.id,
+                            provider_change_id=change.id,
+                            base_revision_sha=repo.default_branch, # Simplified for MVP, usually would fetch actual SHA
+                            state=MaintenanceCaseState.DISCOVERED
+                        )
+                        session.add(case)
+                        session.commit()
+                        
+                        from api_guardian.persistence.outbox import OutboxManager
+                        from api_guardian.application.services.notification_service import NotificationService
+                        from api_guardian.domain import TenantContext
+                        
+                        NotificationService.create_notification(
+                            TenantContext(tenant_id=repo.organization_id),
+                            title="Provider Notice Detected",
+                            message=f"New API change detected from {change.provider} affecting {repo.name}.",
+                            event_type="PROVIDER_NOTICE_DETECTED",
+                            resource_url="/dashboard"
+                        )
+
+                        OutboxManager.schedule_task(
+                            session,
+                            "api_guardian.workers.tasks.orchestrator.orchestrate_case_task",
+                            {"tenant_id": str(repo.organization_id), "case_id": str(case.id)}
+                        )
+                        session.commit()
+            
+            logger.info(f"Processed ProviderChange {change.id} (revision {change.revision}) and created cases for repositories.")

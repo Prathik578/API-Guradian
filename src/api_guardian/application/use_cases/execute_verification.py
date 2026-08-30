@@ -2,11 +2,15 @@
 
 import secrets
 import uuid
-from typing import Any
 
-from api_guardian.application.interfaces import MaintenanceCaseRepository, VerificationRepository, MigrationRepository, SnapshotRepository
-from api_guardian.application.interfaces.storage import ArtifactStoragePort
+from api_guardian.application.interfaces import (
+    MaintenanceCaseRepository,
+    MigrationRepository,
+    SnapshotRepository,
+    VerificationRepository,
+)
 from api_guardian.application.interfaces.sandbox import SandboxOrchestrator
+from api_guardian.application.interfaces.storage import ArtifactStoragePort
 from api_guardian.domain import MaintenanceCaseState, TenantContext
 from api_guardian.domain.verification import VerificationRun, VerificationState
 
@@ -92,6 +96,7 @@ class ExecuteVerificationUseCase:
     def handle_result(self, ctx: TenantContext, run_id: uuid.UUID, raw_payload: bytes, signature: str) -> None:
         """Handles the callback from the sandbox."""
         import json
+
         from api_guardian.sandbox.verification import VerificationPayloadValidator
         run = self.verification_repo.get_run(ctx, run_id)
         if not run:
@@ -129,8 +134,14 @@ class ExecuteVerificationUseCase:
         if case:
             if not passed:
                 case.transition_to(MaintenanceCaseState.AFFECTED_ACTION_REQUIRED)
-                self.case_repo.save(ctx, case)
-            # If passed, we do NOT transition to PR_OPEN here.
-            # PR creation is handled exclusively by CreatePullRequestUseCase,
-            # which enforces all state gating requirements.
+                
             self.case_repo.save(ctx, case)
+            
+            from api_guardian.persistence.database import db_manager
+            from api_guardian.persistence.outbox import OutboxManager
+            with db_manager.get_tenant_session(ctx) as session:
+                OutboxManager.schedule_task(
+                    session,
+                    "api_guardian.workers.tasks.orchestrator.orchestrate_case_task",
+                    {"tenant_id": str(ctx.tenant_id), "case_id": str(case.id)}
+                )

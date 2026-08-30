@@ -9,14 +9,7 @@ from api_guardian.reasoning.patch_generator import PatchGenerator
 from api_guardian.workers.celery_app import app
 
 
-class MockLLMGateway:
-    """Mock LLM Gateway for MVP task instantiation."""
 
-    def generate_completion(self, *args: Any, **kwargs: Any) -> tuple[str, int, int]:
-        return "```diff\n--- a\n+++ b\n```", 0, 0
-
-    def generate_structured(self, *args: Any, **kwargs: Any) -> tuple[dict[str, Any], int, int]:
-        return {}, 0, 0
 
 
 import logging
@@ -29,6 +22,7 @@ logger = logging.getLogger(__name__)
 def generate_migration_task(self: Any, tenant_id: str, case_id: str) -> None:
     from api_guardian.domain import MaintenanceCaseState
     from api_guardian.persistence.database import db_manager
+    from api_guardian.persistence.outbox import OutboxManager
     from api_guardian.persistence.repositories.impact_assessment_repo import (
         SQLImpactAssessmentRepository,
     )
@@ -40,7 +34,6 @@ def generate_migration_task(self: Any, tenant_id: str, case_id: str) -> None:
         SQLProviderChangeRepository,
     )
     from api_guardian.persistence.repositories.snapshot_repo import SQLSnapshotRepository
-    from api_guardian.persistence.outbox import OutboxManager
     from api_guardian.platform.storage.local_storage import LocalArtifactStorage
 
     ctx = TenantContext(tenant_id=uuid.UUID(tenant_id))
@@ -51,7 +44,9 @@ def generate_migration_task(self: Any, tenant_id: str, case_id: str) -> None:
         
         # State-aware idempotency check
         case = case_repo.get_by_id(ctx, uuid.UUID(case_id))
-        if case and case.state != MaintenanceCaseState.AFFECTED_ACTION_REQUIRED:
+        if not case:
+            return
+        if case.state != MaintenanceCaseState.AFFECTED_ACTION_REQUIRED:
             logger.info("Case already past AFFECTED_ACTION_REQUIRED state, exiting harmlessly.")
             return
 
@@ -59,9 +54,19 @@ def generate_migration_task(self: Any, tenant_id: str, case_id: str) -> None:
         change_repo = SQLProviderChangeRepository(db_manager)
         assessment_repo = SQLImpactAssessmentRepository(db_manager)
         
-        # Use Resilient LLM Gateway
+        # Use Resilient LLM Gateway with actual implementation
         from api_guardian.platform.llm.resilient_gateway import ResilientLLMGateway
-        llm = ResilientLLMGateway(underlying=MockLLMGateway())  # type: ignore
+        from api_guardian.platform.llm.openai_gateway import OpenAIGateway, LLMConfigurationError
+        
+        try:
+            underlying_llm = OpenAIGateway()
+        except LLMConfigurationError as e:
+            logger.error(f"Migration generation blocked: {e}")
+            case.transition_to(MaintenanceCaseState.HUMAN_INTERVENTION_REQUIRED)
+            case_repo.save(ctx, case)
+            return
+            
+        llm = ResilientLLMGateway(underlying=underlying_llm)
         patch_generator = PatchGenerator(llm_gateway=llm)
 
         snapshot_repo = SQLSnapshotRepository(db_manager)

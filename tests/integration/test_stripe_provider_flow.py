@@ -4,7 +4,7 @@ import uuid
 
 import pytest
 from sqlalchemy.exc import IntegrityError
-from testcontainers.postgres import PostgresContainer  # type: ignore
+from testcontainers.postgres import PostgresContainer
 
 from api_guardian.application.use_cases.sync_provider import SyncProviderUseCase
 from api_guardian.domain import ProviderChange
@@ -24,12 +24,20 @@ def db_engine():
         url = postgres.get_connection_url().replace("+psycopg2", "")
         db_manager = DatabaseManager(url)
         Base.metadata.create_all(db_manager.engine)
+        
+        # Patch the global db_manager used by use cases
+        import api_guardian.persistence.database as global_db
+        original_db = global_db.db_manager
+        global_db.db_manager = db_manager
+        
         yield db_manager
+        
+        global_db.db_manager = original_db
 
 
 class LocalArtifactStorage(S3ArtifactStorage):
-    def __init__(self):
-        self.store = {}
+    def __init__(self) -> None:
+        self.store: dict[str, bytes] = {}
     
     def store_artifact(self, key: str, content: bytes) -> str:
         self.store[key] = content

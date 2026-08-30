@@ -68,7 +68,7 @@ def test_circuit_breaker_concurrency(postgres_db: Any) -> None:
     def worker(idx: int) -> None:
         gateway = gateways[idx]
         try:
-            gateway.generate_completion(None, "prompt", max_tokens=100)
+            gateway.generate_completion(cast(Any, None), "prompt", max_tokens=100)
             results[idx] = "SUCCESS"
         except RuntimeError as e:
             results[idx] = str(e)

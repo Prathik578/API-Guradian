@@ -1,8 +1,8 @@
-"""Payment processing module using the Stripe API."""
-import stripe  # type: ignore
+import stripe
+from typing import Any
 
 
-def create_payment(amount: int, currency: str, token: str) -> dict:
+def create_payment(amount: int, currency: str, token: str) -> dict[str, Any]:
     """Creates a payment charge using the deprecated `source` parameter."""
     charge = stripe.Charge.create(
         amount=amount,
@@ -13,7 +13,7 @@ def create_payment(amount: int, currency: str, token: str) -> dict:
     return {"id": charge.id, "status": charge.status}
 
 
-def refund_payment(charge_id: str) -> dict:
+def refund_payment(charge_id: str) -> dict[str, Any]:
     """Refunds a charge."""
     refund = stripe.Refund.create(charge=charge_id)
     return {"id": refund.id, "status": refund.status}

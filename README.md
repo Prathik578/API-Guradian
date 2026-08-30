@@ -1,21 +1,14 @@
 # API Guardian
 
-Autonomous software maintenance platform for third-party API dependencies.
+API Guardian is an autonomous software maintenance platform designed to seamlessly monitor, detect, map, migrate, and verify third-party API changes affecting your codebase.
 
-## Architecture & Design Specifications
+## Objective
+To protect enterprise applications from upstream API deprecations, sunsets, and breaking changes.
 
-- [System Architecture](./ARCHITECTURE.md)
-- [Repository & Code Architecture](./CODE_ARCHITECTURE.md)
-
-## Development Setup
-
-```bash
-# Set up Python virtual environment & dependencies
-make setup
-
-# Run local infrastructure (Postgres, Redis, LocalStack, Squid Proxy)
-docker-compose up -d
-
-# Run tests
-make test
-```
+## Features
+- **Provider Change Detection**: Automates tracking of changes from upstream APIs (e.g., Stripe, GitHub).
+- **Intelligent Migration**: Uses Language Models to accurately map deprecated endpoints to new versions and generate patches.
+- **Deterministic Verification**: Safely tests generated patches in an isolated, cryptographically sealed environment.
+- **Automated Pull Requests**: Securely pushes verified patches to GitHub with accompanying test proofs.
+- **Multi-Tenant Security**: Role-Based Access Control, MFA, and strong tenant-level isolation for all models and workflows.
+- **Platform Analytics**: Comprehensive monitoring of migrations, bounded by API Guardian plan limits and quotas.

@@ -49,6 +49,48 @@ class PatchGenerator:
 
     def _parse_diffs(self, response_text: str) -> list[DiffBlock]:
         """Parses unified diff blocks from the raw LLM string."""
-        # TODO: Implement robust diff parsing (e.g. searching for ```diff markers)
-        # For MVP, returning empty or mocked blocks
-        return []
+        import re
+        
+        diffs = []
+        blocks = re.findall(r"```(?:diff)?\n(.*?)\n```", response_text, re.DOTALL)
+        if not blocks:
+            # Fallback if the LLM didn't use markdown code blocks
+            blocks = [response_text]
+            
+        for block in blocks:
+            file_diffs = re.split(r"(?=\n?--- )", block)
+            for fd in file_diffs:
+                fd = fd.strip()
+                if not fd.startswith("--- "):
+                    continue
+                    
+                lines = fd.split("\n")
+                if len(lines) < 3:
+                    continue
+                    
+                minus_line = lines[0]
+                plus_line = lines[1] if len(lines) > 1 and lines[1].startswith("+++ ") else ""
+                
+                file_path = ""
+                if plus_line:
+                    file_path = plus_line[4:].strip()
+                else:
+                    file_path = minus_line[4:].strip()
+                    
+                # Clean up a/ and b/ prefixes typically used in unified diffs
+                if file_path.startswith("a/"):
+                    file_path = file_path[2:]
+                elif file_path.startswith("b/"):
+                    file_path = file_path[2:]
+                    
+                if not file_path or file_path == "/dev/null":
+                    continue
+                    
+                hunk = "\n".join(lines[2:])
+                diffs.append(DiffBlock(
+                    file_path=file_path,
+                    original_snippet="",
+                    modified_snippet=hunk
+                ))
+                
+        return diffs

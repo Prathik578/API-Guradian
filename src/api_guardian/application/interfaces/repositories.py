@@ -135,6 +135,10 @@ class VerificationRepository(ABC):
     def save_run(self, ctx: TenantContext, run: VerificationRun) -> None:
         pass
 
+    @abstractmethod
+    def get_by_patch_id(self, ctx: TenantContext, patch_id: uuid.UUID) -> VerificationRun | None:
+        pass
+
 
 class PullRequestRepository(ABC):
     @abstractmethod

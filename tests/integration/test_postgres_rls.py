@@ -9,7 +9,7 @@ from api_guardian.persistence.models.base import Base
 from api_guardian.persistence.models.tables import RepositoryModel
 
 try:
-    from testcontainers.postgres import PostgresContainer  # type: ignore
+    from testcontainers.postgres import PostgresContainer
     HAS_TESTCONTAINERS = True
 except ImportError:
     HAS_TESTCONTAINERS = False

@@ -2,7 +2,7 @@
 
 import logging
 import time
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from typing import Any
 
 from api_guardian.application.interfaces.llm import LLMGateway, LLMRole
@@ -36,8 +36,9 @@ class ResilientLLMGateway(LLMGateway):
         self.service_name = "llm_gateway"
 
     def _get_or_create_state(self, session: Any) -> Any:
-        from api_guardian.persistence.models.tables import CircuitBreakerStateModel
         from sqlalchemy import select
+
+        from api_guardian.persistence.models.tables import CircuitBreakerStateModel
         
         # Atomic lock on the row
         state_model = session.scalar(

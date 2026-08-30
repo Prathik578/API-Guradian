@@ -2,8 +2,9 @@
 
 import uuid
 
-from api_guardian.application.interfaces.github import GitHubPlatform
 import httpx
+
+from api_guardian.application.interfaces.github import GitHubPlatform
 
 
 class GitHubAdapter(GitHubPlatform):

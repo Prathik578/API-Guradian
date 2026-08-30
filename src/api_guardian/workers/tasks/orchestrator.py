@@ -9,8 +9,8 @@ from sqlalchemy.exc import OperationalError
 from api_guardian.application.use_cases.orchestrate_case import OrchestrateCaseUseCase
 from api_guardian.domain import MaintenanceCaseState, TenantContext
 from api_guardian.persistence.database import db_manager
-from api_guardian.persistence.repositories.maintenance_case_repo import SQLMaintenanceCaseRepository
 from api_guardian.persistence.outbox import OutboxManager
+from api_guardian.persistence.repositories.maintenance_case_repo import SQLMaintenanceCaseRepository
 from api_guardian.workers.celery_app import app
 
 logger = logging.getLogger(__name__)
@@ -61,7 +61,39 @@ def orchestrate_case_task(self: Any, tenant_id: str, case_id: str) -> None:
             elif state == MaintenanceCaseState.MIGRATING:
                 pass # Awaiting migration generation
             elif state == MaintenanceCaseState.VERIFYING:
-                pass # Awaiting verification result
+                from api_guardian.persistence.repositories.verification_repo import SQLVerificationRepository
+                from api_guardian.persistence.repositories.migration_repo import SQLMigrationRepository
+                
+                verification_repo = SQLVerificationRepository(db_manager)
+                migration_repo = SQLMigrationRepository(db_manager)
+                
+                attempt = migration_repo.get_latest_attempt_for_case(ctx, case.id)
+                if attempt and attempt.patch_artifact_id:
+                    run = verification_repo.get_by_patch_id(ctx, attempt.patch_artifact_id)
+                    from api_guardian.domain.verification import VerificationState
+                    if run and run.state == VerificationState.VERIFIED:
+                        from api_guardian.application.services.notification_service import NotificationService
+                        if run.audit_passed:
+                            NotificationService.create_notification(
+                                ctx,
+                                title="Verification Passed",
+                                message="API integration patch verified successfully in the sandbox.",
+                                event_type="VERIFICATION_PASSED",
+                                resource_url=f"/dashboard"
+                            )
+                            OutboxManager.schedule_task(
+                                session,
+                                "api_guardian.workers.tasks.github.create_pull_request_task",
+                                {"tenant_id": tenant_id, "case_id": case_id}
+                            )
+                        else:
+                            NotificationService.create_notification(
+                                ctx,
+                                title="Verification Failed",
+                                message="API integration patch failed the security/behavioral audit.",
+                                event_type="VERIFICATION_FAILED",
+                                resource_url=f"/dashboard"
+                            )
             elif state == MaintenanceCaseState.PR_OPEN:
                 pass # Awaiting GitHub webhook
 

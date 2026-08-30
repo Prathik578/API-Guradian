@@ -12,7 +12,12 @@ from api_guardian.application.interfaces import (
 )
 from api_guardian.application.interfaces.storage import ArtifactStoragePort
 from api_guardian.domain import MaintenanceCaseState, TenantContext
-from api_guardian.domain.migration import MigrationAttempt, MigrationCampaign, PatchArtifact, MigrationScope
+from api_guardian.domain.migration import (
+    MigrationAttempt,
+    MigrationCampaign,
+    MigrationScope,
+    PatchArtifact,
+)
 from api_guardian.llm.diff_parser import DiffValidationError, UnifiedDiffParser
 from api_guardian.reasoning.patch_generator import PatchGenerator
 

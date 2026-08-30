@@ -1,6 +1,5 @@
 """Use case for analyzing a repository and creating a snapshot."""
 
-import hashlib
 import uuid
 
 from api_guardian.analysis.graph_builder import GraphBuilder

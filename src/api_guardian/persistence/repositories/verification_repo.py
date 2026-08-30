@@ -44,6 +44,16 @@ class SQLVerificationRepository(VerificationRepository):
                 nonce=model.nonce,
             )
 
+    def get_by_patch_id(self, ctx: TenantContext, patch_id: uuid.UUID) -> VerificationRun | None:
+        from sqlalchemy import select
+        with self.db_manager.get_tenant_session(ctx) as session:
+            model = session.execute(
+                select(VerificationRunModel).where(VerificationRunModel.patch_artifact_id == patch_id)
+            ).scalars().first()
+            if not model:
+                return None
+            return self.get_run(ctx, model.id)
+
     def save_run(self, ctx: TenantContext, run: VerificationRun) -> None:
         import dataclasses
         with self.db_manager.get_tenant_session(ctx) as session:

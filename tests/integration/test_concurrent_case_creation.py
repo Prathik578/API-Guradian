@@ -16,7 +16,7 @@ from api_guardian.persistence.repositories.maintenance_case_repo import SQLMaint
 from api_guardian.persistence.repositories.provider_change_repo import SQLProviderChangeRepository
 
 try:
-    from testcontainers.postgres import PostgresContainer  # type: ignore
+    from testcontainers.postgres import PostgresContainer
     HAS_TESTCONTAINERS = True
 except ImportError:
     HAS_TESTCONTAINERS = False

@@ -4,9 +4,9 @@ import hashlib
 import os
 import re
 import uuid
+
 import boto3
 from botocore.exceptions import ClientError
-from typing import BinaryIO
 
 from api_guardian.application.interfaces.storage import ArtifactStoragePort
 
@@ -85,7 +85,7 @@ class S3ArtifactStorage(ArtifactStoragePort):
             self.s3_client.download_file(self.bucket_name, key, tmp_path)
         except ClientError as e:
             if e.response["Error"]["Code"] == "404" or e.response["Error"]["Code"] == "NoSuchKey":
-                raise FileNotFoundError(f"Snapshot not found in S3")
+                raise FileNotFoundError("Snapshot not found in S3")
             raise
             
         hasher = hashlib.sha256()

@@ -13,6 +13,8 @@ class TenantContext:
     """
 
     tenant_id: uuid.UUID
+    user_id: uuid.UUID | None = None
+    role: str | None = None
 
 
 @dataclass

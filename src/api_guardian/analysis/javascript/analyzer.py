@@ -1,7 +1,15 @@
 """JavaScript and TypeScript Analyzer."""
 
 import re
-from api_guardian.analysis.models import CallSite, CodeLocation, Module, Symbol, SymbolType, EvidenceLevel
+
+from api_guardian.analysis.models import (
+    CallSite,
+    CodeLocation,
+    EvidenceLevel,
+    Module,
+    Symbol,
+    SymbolType,
+)
 from api_guardian.application.interfaces.analyzer import LanguageAdapter
 
 

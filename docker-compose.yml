@@ -1,6 +1,17 @@
 version: '3.8'
 
 services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+psycopg2://guardian:guardian_dev_password@postgres:5432/api_guardian
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - postgres
+      - redis
+
   postgres:
     image: postgres:16-alpine
     container_name: api_guardian_postgres
@@ -28,4 +39,4 @@ services:
     ports:
       - "3128:3128"
     volumes:
-      - ./infrastructure/squid/squid.conf:/etc/squid/squid.conf:ro
+      - ./infrastructure/squid_new.conf:/etc/squid/squid.conf:ro

@@ -1,9 +1,10 @@
 """SQLAlchemy ORM tables for domain entities."""
 
 import uuid
+import datetime
 from typing import Any
 
-from sqlalchemy import JSON, Boolean, ForeignKey, Integer, String, UniqueConstraint, Uuid, text
+from sqlalchemy import JSON, Boolean, ForeignKey, Integer, String, UniqueConstraint, Uuid, text, DateTime
 from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -18,10 +19,42 @@ from .base import Base, TenantMixin, TimestampMixin
 
 class OrganizationModel(Base, TimestampMixin):
     __tablename__ = "organizations"
-    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
+    account_type: Mapped[str] = mapped_column(String(50), nullable=False, default="ENTERPRISE") # PERSONAL or ENTERPRISE
     github_installation_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
+class UserModel(Base, TimestampMixin):
+    __tablename__ = "users"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    auth_provider: Mapped[str] = mapped_column(String(50), nullable=False) # e.g. "github", "google", "local"
+    auth_provider_id: Mapped[str] = mapped_column(String(255), nullable=False)
+    password_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    mfa_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    mfa_secret: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    reset_token: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    reset_token_expires: Mapped[datetime.datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+class OrganizationMemberModel(Base, TimestampMixin):
+    __tablename__ = "organization_members"
+    __table_args__ = (
+        UniqueConstraint("organization_id", "user_id", name="uq_org_member"),
+    )
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    organization_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("organizations.id"), nullable=False)
+    user_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("users.id"), nullable=False)
+    role: Mapped[str] = mapped_column(String(50), nullable=False, default="MEMBER") # OWNER, ADMIN, MEMBER
+
+class OrganizationPlanModel(Base, TimestampMixin):
+    __tablename__ = "organization_plans"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    organization_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("organizations.id"), unique=True, nullable=False)
+    plan_tier: Mapped[str] = mapped_column(String(50), nullable=False, default="FREE") # FREE, PRO, ENTERPRISE
+    trial_starts_at: Mapped[Any | None] = mapped_column(String(50), nullable=True)
+    trial_ends_at: Mapped[Any | None] = mapped_column(String(50), nullable=True)
+    status: Mapped[str] = mapped_column(String(50), nullable=False, default="ACTIVE") # ACTIVE, TRIAL, EXPIRED, CANCELED
 
 class RepositoryModel(Base, TimestampMixin, TenantMixin):
     __tablename__ = "repositories"
@@ -234,4 +267,54 @@ class ResourceLeaseModel(Base, TimestampMixin, TenantMixin):
     worker_id: Mapped[str] = mapped_column(String(255), nullable=False)
     expires_at: Mapped[Any] = mapped_column(String(50), nullable=False)
 
+
+class IntegrationModel(Base, TimestampMixin, TenantMixin):
+    __tablename__ = "integrations"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    provider: Mapped[str] = mapped_column(String(255), nullable=False)
+    status: Mapped[str] = mapped_column(String(50), nullable=False, default="CONNECTED")
+    last_synced_at: Mapped[Any | None] = mapped_column(String(50), nullable=True)
+    configuration: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+
+class GuardedAPIModel(Base, TimestampMixin, TenantMixin):
+    __tablename__ = "guarded_apis"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    integration_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("integrations.id", ondelete="CASCADE"), nullable=False)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    version: Mapped[str] = mapped_column(String(50), nullable=False)
+    status: Mapped[str] = mapped_column(String(50), nullable=False, default="ACTIVE")
+    risk_level: Mapped[str] = mapped_column(String(50), nullable=False, default="LOW")
+
+class ProviderNoticeModel(Base, TimestampMixin):
+    __tablename__ = "provider_notices"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    provider: Mapped[str] = mapped_column(String(255), nullable=False)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str] = mapped_column(String, nullable=False)
+    published_at: Mapped[Any | None] = mapped_column(String(50), nullable=True)
+    effective_at: Mapped[Any | None] = mapped_column(String(50), nullable=True)
+    severity: Mapped[str] = mapped_column(String(50), nullable=False, default="INFO") # INFO, WARNING, CRITICAL
+    affected_api: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    notice_type: Mapped[str] = mapped_column(String(50), nullable=False, default="DEPRECATION")
+    status: Mapped[str] = mapped_column(String(50), nullable=False, default="NEW") # NEW, RELEVANT, ACTION_REQUIRED, RESOLVED
+
+class ActivityLogModel(Base, TimestampMixin, TenantMixin):
+    __tablename__ = "activity_logs"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    actor: Mapped[str] = mapped_column(String(255), nullable=False)
+    event_type: Mapped[str] = mapped_column(String(100), nullable=False)
+    entity: Mapped[str] = mapped_column(String(100), nullable=False)
+    entity_id: Mapped[str] = mapped_column(String(255), nullable=False)
+    result: Mapped[str] = mapped_column(String(50), nullable=False, default="SUCCESS")
+    metadata_payload: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+
+class NotificationModel(Base, TimestampMixin, TenantMixin):
+    __tablename__ = "notifications"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, ForeignKey("users.id"), nullable=True)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    message: Mapped[str] = mapped_column(String, nullable=False)
+    event_type: Mapped[str] = mapped_column(String(100), nullable=False)
+    resource_url: Mapped[str | None] = mapped_column(String(1024), nullable=True)
+    is_read: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 

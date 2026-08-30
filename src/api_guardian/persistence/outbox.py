@@ -1,10 +1,12 @@
-from typing import Any
-from sqlalchemy.orm import Session
 from datetime import UTC, datetime
-from celery import current_app
+from typing import Any
 
-from api_guardian.persistence.models.tables import TaskOutboxModel
+from celery import current_app
+from sqlalchemy.orm import Session
+
 from api_guardian.persistence.database import DatabaseManager
+from api_guardian.persistence.models.tables import TaskOutboxModel
+
 
 class OutboxManager:
     @staticmethod
