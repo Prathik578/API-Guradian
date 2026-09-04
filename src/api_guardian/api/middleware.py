@@ -32,8 +32,9 @@ class TenantIdentificationMiddleware(BaseHTTPMiddleware):
             try:
                 tenant_id = uuid.UUID(tenant_header)
                 if user_id:
-                    from api_guardian.persistence.database import db_manager
                     from sqlalchemy import select
+
+                    from api_guardian.persistence.database import db_manager
                     from api_guardian.persistence.models.tables import OrganizationMemberModel
                     
                     with db_manager.SessionLocal() as session:

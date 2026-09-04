@@ -78,9 +78,7 @@ class PatchGenerator:
                     file_path = minus_line[4:].strip()
                     
                 # Clean up a/ and b/ prefixes typically used in unified diffs
-                if file_path.startswith("a/"):
-                    file_path = file_path[2:]
-                elif file_path.startswith("b/"):
+                if file_path.startswith("a/") or file_path.startswith("b/"):
                     file_path = file_path[2:]
                     
                 if not file_path or file_path == "/dev/null":

@@ -1,8 +1,10 @@
 import os
-import pytest
 import subprocess
+
 import boto3
+import pytest
 from botocore.exceptions import ClientError, NoCredentialsError
+
 
 @pytest.mark.real_aws
 def test_aws_preflight():
@@ -11,11 +13,9 @@ def test_aws_preflight():
     print("\n\nAWS PRECHECK\n")
     
     # 1. Check CLI availability
-    cli_available = False
     try:
         res = subprocess.run(["aws", "--version"], capture_output=True, text=True)
         if res.returncode == 0:
-            cli_available = True
             print("CLI             = AVAILABLE")
         else:
             print("CLI             = UNAVAILABLE")

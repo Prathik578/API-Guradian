@@ -1,13 +1,14 @@
 """Notifications routes."""
 import uuid
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select, desc
 
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
+from sqlalchemy import desc, select
+
+from api_guardian.api.dependencies import require_member
 from api_guardian.domain import TenantContext
 from api_guardian.persistence.database import db_manager
 from api_guardian.persistence.models.tables import NotificationModel
-from api_guardian.api.dependencies import require_member
-from pydantic import BaseModel
 
 router = APIRouter()
 

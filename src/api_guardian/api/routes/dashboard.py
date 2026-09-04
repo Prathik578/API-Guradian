@@ -1,25 +1,25 @@
 """Dashboard analytics routes."""
-from typing import cast
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends
 from sqlalchemy import func, select
 
+from api_guardian.api.dependencies import require_viewer
 from api_guardian.api.schemas import DashboardOverviewResponse
-from api_guardian.domain import MaintenanceCaseState, TenantContext
+from api_guardian.domain import (
+    MaintenanceCaseState,
+    MigrationState,
+    TenantContext,
+    VerificationState,
+)
 from api_guardian.persistence.database import db_manager
 from api_guardian.persistence.models.tables import (
     MaintenanceCaseModel,
-    ProviderChangeModel,
-    RepositoryModel,
-    MigrationAttemptModel,
-    PullRequestModel,
-    VerificationRunModel,
     MigrationCampaignModel,
+    ProviderChangeModel,
+    PullRequestModel,
+    RepositoryModel,
+    VerificationRunModel,
 )
-from api_guardian.domain import MigrationState, VerificationState, MaintenanceCaseState, TenantContext
-from fastapi import APIRouter, Depends, HTTPException, Request
-from typing import cast
-from api_guardian.api.dependencies import require_viewer
 
 router = APIRouter()
 

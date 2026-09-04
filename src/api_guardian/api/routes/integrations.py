@@ -1,15 +1,19 @@
 """Integrations routes."""
-from typing import cast
-from fastapi import APIRouter, Depends, HTTPException, Request, Query
-from sqlalchemy import select, func
+import uuid
 
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import func, select
+
+from api_guardian.api.dependencies import require_member, require_viewer
+from api_guardian.api.schemas import (
+    ActionResponse,
+    CreateIntegrationRequest,
+    IntegrationResponse,
+    PaginatedResponse,
+)
 from api_guardian.domain import TenantContext
 from api_guardian.persistence.database import db_manager
 from api_guardian.persistence.models.tables import IntegrationModel
-from api_guardian.api.schemas import IntegrationResponse, PaginatedResponse, CreateIntegrationRequest, ActionResponse
-import uuid
-
-from api_guardian.api.dependencies import require_viewer, require_member
 
 router = APIRouter()
 
@@ -89,7 +93,9 @@ async def sync_integration(
         return ActionResponse(status="sync_queued")
 
 import os
+
 from pydantic import BaseModel
+
 
 class OAuthLoginResponse(BaseModel):
     url: str
@@ -153,6 +159,7 @@ async def github_oauth_callback(code: str, state: str, ctx: TenantContext = Depe
         )
 
 from typing import Any
+
 
 @router.get("/{integration_id}/github/repositories")
 async def github_discover_repositories(integration_id: uuid.UUID, ctx: TenantContext = Depends(require_member)) -> list[dict[str, Any]]:

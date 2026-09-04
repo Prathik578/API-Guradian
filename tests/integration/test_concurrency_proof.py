@@ -7,9 +7,7 @@ from typing import Any, cast
 
 import pytest
 
-from api_guardian.domain.quotas import ResourcePolicy
-from api_guardian.domain import TenantContext
-from api_guardian.persistence.database import DatabaseManager, db_manager
+from api_guardian.persistence.database import db_manager
 from api_guardian.persistence.models.base import Base
 from api_guardian.platform.llm.resilient_gateway import ResilientLLMGateway
 from api_guardian.platform.quotas.manager import QuotaManager
@@ -41,9 +39,6 @@ def postgres_db() -> Any:
 @pytest.mark.skipif(not HAS_TESTCONTAINERS, reason="Requires testcontainers-python")
 def test_circuit_breaker_concurrency(postgres_db: Any) -> None:
     """Proves that multiple concurrent workers correctly transition Circuit Breaker."""
-    
-    tenant_id = uuid.uuid4()
-    ctx = TenantContext(tenant_id=tenant_id)
     
     # We will simulate 10 workers failing simultaneously. 
     # The breaker is configured to OPEN after 3 failures.
@@ -108,7 +103,6 @@ def test_quota_manager_concurrency(postgres_db: Any) -> None:
     """Proves that multiple concurrent workers respect quota limits transactionally."""
     
     tenant_id = uuid.uuid4()
-    ctx = TenantContext(tenant_id=tenant_id)
     
     # Custom policy: only 2 concurrent migrations allowed (mocked via limit injection)
     # We'll monkeypatch the limit lookup in QuotaManager to use a local variable
@@ -119,7 +113,6 @@ def test_quota_manager_concurrency(postgres_db: Any) -> None:
             return 2
         return original_getattr(obj, name, default)
 
-    import builtins
     results: list[Any] = [None] * 5
     leases: list[Any] = [None] * 5
     
@@ -171,7 +164,7 @@ def test_quota_manager_concurrency(postgres_db: Any) -> None:
         finally:
             builtins.getattr = original_getattr
             
-    l1 = worker_expire(10, 1) # 1 sec TTL
+    worker_expire(10, 1) # 1 sec TTL
     
     builtins.getattr = mock_getattr
     with pytest.raises(RuntimeError, match="Quota exceeded"):

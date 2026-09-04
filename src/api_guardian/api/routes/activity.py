@@ -1,12 +1,13 @@
 """Activity logs routes."""
 from typing import cast
-from fastapi import APIRouter, Depends, HTTPException, Request, Query
-from sqlalchemy import select, func
 
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from sqlalchemy import func, select
+
+from api_guardian.api.schemas import ActivityEventResponse, PaginatedResponse
 from api_guardian.domain import TenantContext
 from api_guardian.persistence.database import db_manager
 from api_guardian.persistence.models.tables import ActivityLogModel
-from api_guardian.api.schemas import ActivityEventResponse, PaginatedResponse
 
 router = APIRouter()
 

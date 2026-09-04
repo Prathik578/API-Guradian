@@ -1,26 +1,25 @@
 """Authentication and Onboarding routes."""
-import uuid
 import datetime
-import jwt
-from fastapi import APIRouter, HTTPException, Depends
-from sqlalchemy import select
-from typing import cast
-from pydantic import BaseModel
+import uuid
 
+import jwt
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
+from sqlalchemy import select
+
+from api_guardian.api.schemas import (
+    ActionResponse,
+    AuthResponse,
+    OnboardingRequest,
+    OrganizationResponse,
+    UserResponse,
+)
 from api_guardian.persistence.database import db_manager
 from api_guardian.persistence.models.tables import (
-    UserModel,
-    OrganizationModel,
     OrganizationMemberModel,
+    OrganizationModel,
     OrganizationPlanModel,
-)
-from api_guardian.api.schemas import (
-    AuthRequest,
-    AuthResponse,
-    UserResponse,
-    OrganizationResponse,
-    OnboardingRequest,
-    ActionResponse
+    UserModel,
 )
 
 router = APIRouter()
@@ -35,6 +34,7 @@ def create_access_token(user_id: str) -> str:
     return encoded_jwt
 
 import bcrypt
+
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     # bcrypt requires bytes
@@ -52,9 +52,17 @@ def create_mfa_token(user_id: str) -> str:
     to_encode = {"sub": user_id, "exp": expire, "mfa_pending": True}
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-from api_guardian.api.schemas import LoginRequest, SignupRequest, ChangePasswordRequest, ForgotPasswordRequest, ResetPasswordRequest, ActionResponse, VerifyMFALoginRequest
-from api_guardian.domain import TenantContext
 from api_guardian.api.dependencies import require_member
+from api_guardian.api.schemas import (
+    ChangePasswordRequest,
+    ForgotPasswordRequest,
+    LoginRequest,
+    ResetPasswordRequest,
+    SignupRequest,
+    VerifyMFALoginRequest,
+)
+from api_guardian.domain import TenantContext
+
 
 @router.post("/signup", response_model=AuthResponse)
 async def signup(request: SignupRequest) -> AuthResponse:
@@ -145,6 +153,7 @@ async def login(request: LoginRequest) -> AuthResponse:
         )
 
 import pyotp
+
 
 @router.post("/verify-mfa-login", response_model=AuthResponse)
 async def verify_mfa_login(request: VerifyMFALoginRequest) -> AuthResponse:

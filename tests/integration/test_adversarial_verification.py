@@ -3,20 +3,16 @@
 Tests that the verification engine catches malicious or erroneous patches
 that attempt to bypass safety gates by modifying the tests themselves.
 """
-import hashlib
 import json
 import shutil
 import tempfile
-import uuid
 from pathlib import Path
 
-from api_guardian.domain.verification import VerificationPlan
 from tests.integration.test_end_to_end_migration_flow import (
+    REPO_FIXTURE_DIR,
     _apply_patch_to_workspace,
     _capture_verification_plan,
     _patch_audit,
-    REPO_FIXTURE_DIR,
-    FIXTURES_DIR,
 )
 
 
@@ -108,5 +104,5 @@ class TestAdversarialVerification:
              "    assert 'AWS_ACCESS_KEY_ID' not in os.environ\n"
             }
         ])
-        passed, reasons = self._run_audit(patch_data)
+        passed, _reasons = self._run_audit(patch_data)
         assert not passed

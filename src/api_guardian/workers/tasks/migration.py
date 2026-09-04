@@ -1,20 +1,15 @@
 """Celery tasks for migration."""
 
+import logging
 import uuid
 from typing import Any
+
+from sqlalchemy.exc import OperationalError
 
 from api_guardian.application.use_cases.generate_migration import GenerateMigrationUseCase
 from api_guardian.domain import TenantContext
 from api_guardian.reasoning.patch_generator import PatchGenerator
 from api_guardian.workers.celery_app import app
-
-
-
-
-
-import logging
-
-from sqlalchemy.exc import OperationalError
 
 logger = logging.getLogger(__name__)
 
@@ -55,8 +50,8 @@ def generate_migration_task(self: Any, tenant_id: str, case_id: str) -> None:
         assessment_repo = SQLImpactAssessmentRepository(db_manager)
         
         # Use Resilient LLM Gateway with actual implementation
+        from api_guardian.platform.llm.openai_gateway import LLMConfigurationError, OpenAIGateway
         from api_guardian.platform.llm.resilient_gateway import ResilientLLMGateway
-        from api_guardian.platform.llm.openai_gateway import OpenAIGateway, LLMConfigurationError
         
         try:
             underlying_llm = OpenAIGateway()

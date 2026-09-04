@@ -61,8 +61,12 @@ def orchestrate_case_task(self: Any, tenant_id: str, case_id: str) -> None:
             elif state == MaintenanceCaseState.MIGRATING:
                 pass # Awaiting migration generation
             elif state == MaintenanceCaseState.VERIFYING:
-                from api_guardian.persistence.repositories.verification_repo import SQLVerificationRepository
-                from api_guardian.persistence.repositories.migration_repo import SQLMigrationRepository
+                from api_guardian.persistence.repositories.migration_repo import (
+                    SQLMigrationRepository,
+                )
+                from api_guardian.persistence.repositories.verification_repo import (
+                    SQLVerificationRepository,
+                )
                 
                 verification_repo = SQLVerificationRepository(db_manager)
                 migration_repo = SQLMigrationRepository(db_manager)
@@ -72,14 +76,16 @@ def orchestrate_case_task(self: Any, tenant_id: str, case_id: str) -> None:
                     run = verification_repo.get_by_patch_id(ctx, attempt.patch_artifact_id)
                     from api_guardian.domain.verification import VerificationState
                     if run and run.state == VerificationState.VERIFIED:
-                        from api_guardian.application.services.notification_service import NotificationService
+                        from api_guardian.application.services.notification_service import (
+                            NotificationService,
+                        )
                         if run.audit_passed:
                             NotificationService.create_notification(
                                 ctx,
                                 title="Verification Passed",
                                 message="API integration patch verified successfully in the sandbox.",
                                 event_type="VERIFICATION_PASSED",
-                                resource_url=f"/dashboard"
+                                resource_url="/dashboard"
                             )
                             OutboxManager.schedule_task(
                                 session,
@@ -92,7 +98,7 @@ def orchestrate_case_task(self: Any, tenant_id: str, case_id: str) -> None:
                                 title="Verification Failed",
                                 message="API integration patch failed the security/behavioral audit.",
                                 event_type="VERIFICATION_FAILED",
-                                resource_url=f"/dashboard"
+                                resource_url="/dashboard"
                             )
             elif state == MaintenanceCaseState.PR_OPEN:
                 pass # Awaiting GitHub webhook

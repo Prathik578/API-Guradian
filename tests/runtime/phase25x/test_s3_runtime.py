@@ -1,10 +1,12 @@
+import hashlib
 import os
 import uuid
-import hashlib
-import pytest
+
 import boto3
-from botocore.exceptions import ClientError
+import pytest
+
 from api_guardian.platform.storage.s3_storage import S3ArtifactStorage
+
 
 @pytest.fixture(scope="module")
 def run_id():
@@ -71,7 +73,6 @@ def test_s3_hash_integrity_negative(real_s3_storage):
     tenant_id = "tenant-a"
     patch_id = str(uuid.uuid4())
     content = "real patch data"
-    expected_hash = hashlib.sha256(content.encode()).hexdigest()
     
     real_s3_storage.put_patch(tenant_id, patch_id, content)
     

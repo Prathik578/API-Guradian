@@ -1,16 +1,14 @@
 """Repositories routes."""
 import uuid
-from typing import cast
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import func, select
 
-from api_guardian.api.schemas import PaginatedResponse, RepositoryResponse, CreateRepositoryRequest
+from api_guardian.api.dependencies import require_member, require_viewer
+from api_guardian.api.schemas import CreateRepositoryRequest, PaginatedResponse, RepositoryResponse
 from api_guardian.domain import TenantContext
 from api_guardian.persistence.database import db_manager
 from api_guardian.persistence.models.tables import RepositoryModel
-
-from api_guardian.api.dependencies import require_viewer, require_member
 
 router = APIRouter()
 

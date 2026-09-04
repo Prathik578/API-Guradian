@@ -4,9 +4,8 @@ import hashlib
 import os
 import tempfile
 import uuid
-from pathlib import Path
+
 import pytest
-from botocore.exceptions import ClientError
 
 from api_guardian.platform.storage.s3_storage import S3ArtifactStorage
 
@@ -19,8 +18,8 @@ def s3_storage(monkeypatch):
     Here we use moto to mock the AWS S3 endpoint entirely but run the real boto3 code.
     """
     try:
-        from moto import mock_aws
         import boto3
+        from moto import mock_aws
     except ImportError:
         pytest.skip("moto not installed")
 

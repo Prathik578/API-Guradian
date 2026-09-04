@@ -1,16 +1,19 @@
 """Usage and Quotas routes."""
-from typing import cast
 from fastapi import APIRouter, Depends
-from sqlalchemy import select, func
+from pydantic import BaseModel
+from sqlalchemy import func, select
 
+from api_guardian.api.dependencies import require_member
 from api_guardian.domain import TenantContext
 from api_guardian.persistence.database import db_manager
 from api_guardian.persistence.models.tables import (
-    RepositoryModel, GuardedAPIModel, ProviderChangeModel, 
-    MigrationAttemptModel, VerificationRunModel, OrganizationPlanModel
+    GuardedAPIModel,
+    MigrationAttemptModel,
+    OrganizationPlanModel,
+    ProviderChangeModel,
+    RepositoryModel,
+    VerificationRunModel,
 )
-from api_guardian.api.dependencies import require_member
-from pydantic import BaseModel
 
 router = APIRouter()
 

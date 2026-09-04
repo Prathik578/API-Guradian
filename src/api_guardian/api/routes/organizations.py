@@ -1,15 +1,23 @@
 """Organization and Member Management routes."""
 import uuid
-from typing import cast
+
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 from sqlalchemy import select
 
+from api_guardian.api.dependencies import (
+    require_admin,
+    require_owner,
+    require_viewer,
+)
+from api_guardian.api.schemas import OrganizationResponse, UserResponse
 from api_guardian.domain import TenantContext
 from api_guardian.persistence.database import db_manager
-from api_guardian.persistence.models.tables import OrganizationModel, OrganizationMemberModel, UserModel
-from api_guardian.api.schemas import OrganizationResponse, UserResponse
-from api_guardian.api.dependencies import require_owner, require_admin, require_member, require_viewer
-from pydantic import BaseModel
+from api_guardian.persistence.models.tables import (
+    OrganizationMemberModel,
+    OrganizationModel,
+    UserModel,
+)
 
 router = APIRouter()
 

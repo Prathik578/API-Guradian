@@ -124,10 +124,11 @@ class SyncProviderUseCase:
                     pass
 
             # Iterate over all repositories across all tenants to create cases
-            from api_guardian.persistence.database import db_manager
-            from api_guardian.persistence.models.tables import RepositoryModel, MaintenanceCaseModel
-            from api_guardian.domain import MaintenanceCaseState
             from sqlalchemy import select
+
+            from api_guardian.domain import MaintenanceCaseState
+            from api_guardian.persistence.database import db_manager
+            from api_guardian.persistence.models.tables import MaintenanceCaseModel, RepositoryModel
             
             with db_manager.SessionLocal() as session:
                 repos = session.execute(select(RepositoryModel)).scalars().all()
@@ -153,9 +154,11 @@ class SyncProviderUseCase:
                         session.add(case)
                         session.commit()
                         
-                        from api_guardian.persistence.outbox import OutboxManager
-                        from api_guardian.application.services.notification_service import NotificationService
+                        from api_guardian.application.services.notification_service import (
+                            NotificationService,
+                        )
                         from api_guardian.domain import TenantContext
+                        from api_guardian.persistence.outbox import OutboxManager
                         
                         NotificationService.create_notification(
                             TenantContext(tenant_id=repo.organization_id),

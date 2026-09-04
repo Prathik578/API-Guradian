@@ -1,7 +1,7 @@
 import os
+
 import pytest
-import boto3
-from botocore.exceptions import ClientError
+
 
 def pytest_configure(config):
     config.addinivalue_line(

@@ -1,14 +1,13 @@
 """MFA routes."""
+
 import pyotp
-import uuid
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
 from pydantic import BaseModel
 
+from api_guardian.api.dependencies import require_member
 from api_guardian.domain import TenantContext
 from api_guardian.persistence.database import db_manager
 from api_guardian.persistence.models.tables import UserModel
-from api_guardian.api.dependencies import require_member
 
 router = APIRouter()
 

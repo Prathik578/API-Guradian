@@ -1,5 +1,6 @@
-import stripe
 from typing import Any
+
+import stripe
 
 
 def create_payment(amount: int, currency: str, token: str) -> dict[str, Any]:

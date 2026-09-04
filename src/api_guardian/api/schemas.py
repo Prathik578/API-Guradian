@@ -1,6 +1,6 @@
 """Pydantic schemas for API requests and responses."""
 import uuid
-from typing import Generic, TypeVar, Any
+from typing import Any, Generic, TypeVar
 
 from pydantic import BaseModel
 
@@ -181,6 +181,7 @@ class PullRequestResponse(BaseModel):
     created_at: str | None = None
 
 from typing import Any
+
 
 class ActivityEventResponse(BaseModel):
     id: uuid.UUID

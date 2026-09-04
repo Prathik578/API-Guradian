@@ -28,7 +28,21 @@ def create_app() -> FastAPI:
     app.include_router(webhooks.router, prefix="/webhooks", tags=["github"])
     app.include_router(cases.router, prefix="/api/v1/cases", tags=["cases"])
     
-    from .routes import dashboard, provider_changes, repositories, auth, integrations, guarded_apis, notices, pull_requests, activity, organizations, usage, notifications, mfa
+    from .routes import (
+        activity,
+        auth,
+        dashboard,
+        guarded_apis,
+        integrations,
+        mfa,
+        notices,
+        notifications,
+        organizations,
+        provider_changes,
+        pull_requests,
+        repositories,
+        usage,
+    )
     app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
     app.include_router(organizations.router, prefix="/api/v1/organizations", tags=["organizations"])
     app.include_router(usage.router, prefix="/api/v1/usage", tags=["usage"])

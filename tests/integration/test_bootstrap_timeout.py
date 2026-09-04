@@ -5,6 +5,7 @@ import subprocess
 import uuid
 from pathlib import Path
 
+
 def test_real_bootstrap_hang_is_killed(tmp_path):
     """Prove that the Go bootstrap kills hanging child processes."""
     

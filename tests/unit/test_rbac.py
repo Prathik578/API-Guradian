@@ -1,15 +1,26 @@
-import pytest
-from fastapi import FastAPI, Depends
-from fastapi.testclient import TestClient
 import uuid
+
 import jwt
-from api_guardian.api.middleware import TenantIdentificationMiddleware
-from api_guardian.api.dependencies import require_owner, require_admin, require_member, require_viewer
-from api_guardian.domain import TenantContext
+import pytest
+from fastapi import Depends, FastAPI
+from fastapi.testclient import TestClient
+
 import api_guardian.persistence.database as db_mod
+from api_guardian.api.dependencies import (
+    require_admin,
+    require_member,
+    require_owner,
+    require_viewer,
+)
+from api_guardian.api.middleware import TenantIdentificationMiddleware
+from api_guardian.domain import TenantContext
 from api_guardian.persistence.database import DatabaseManager
 from api_guardian.persistence.models.base import Base
-from api_guardian.persistence.models.tables import OrganizationModel, UserModel, OrganizationMemberModel
+from api_guardian.persistence.models.tables import (
+    OrganizationMemberModel,
+    OrganizationModel,
+    UserModel,
+)
 
 try:
     from testcontainers.postgres import PostgresContainer

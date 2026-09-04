@@ -1,11 +1,11 @@
 """Phase 23X: Real Subprocess Execution Proof."""
 
+import json
 import os
 import subprocess
 import uuid
-import json
-import pytest
 from pathlib import Path
+
 
 def test_real_bootstrap_secret_isolation(tmp_path):
     """Prove that the Go bootstrap scrubs sensitive env vars before executing the subprocess."""

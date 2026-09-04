@@ -1,6 +1,9 @@
-from fastapi import Depends, HTTPException, Request
 from typing import cast
+
+from fastapi import Depends, HTTPException, Request
+
 from api_guardian.domain import TenantContext
+
 
 def get_tenant_context(request: Request) -> TenantContext:
     if not hasattr(request.state, "tenant") or not request.state.tenant:

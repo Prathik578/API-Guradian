@@ -1,12 +1,12 @@
 """Provider Notices routes."""
-from typing import cast
-from fastapi import APIRouter, Depends, HTTPException, Request, Query
-from sqlalchemy import select, func
 import uuid
 
+from fastapi import APIRouter, HTTPException, Query
+from sqlalchemy import func, select
+
+from api_guardian.api.schemas import PaginatedResponse, ProviderNoticeResponse
 from api_guardian.persistence.database import db_manager
 from api_guardian.persistence.models.tables import ProviderNoticeModel
-from api_guardian.api.schemas import ProviderNoticeResponse, PaginatedResponse
 
 router = APIRouter()
 

@@ -1,10 +1,10 @@
 import uuid
+
 import pytest
+from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-from fastapi.testclient import TestClient
-from typing import Any
 
 from api_guardian.api.app import app
 from api_guardian.persistence.database import db_manager
@@ -122,11 +122,11 @@ def test_tenant_isolation():
     token_b = signup_b["token"]
     user_b_id = signup_b["user"]["id"]
 
-    org_b = client.post(
+    client.post(
         f"/api/v1/auth/onboarding?user_id={user_b_id}",
         json={"account_type": "PERSONAL", "organization_name": "Org B"},
         headers={"Authorization": f"Bearer {token_b}"}
-    ).json()
+    )
 
     # User B attempts to access Org A with Org A's tenant ID
     res = client.get(

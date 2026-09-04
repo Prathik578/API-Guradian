@@ -67,7 +67,6 @@ def handle_push_task(payload: dict[str, Any]) -> None:
         
         for case in active_cases:
             # Re-queue analysis for each active case with the NEW commit_sha
-            clone_url = f"https://github.com/{repo_model.github_full_name}.git"
             OutboxManager.schedule_task(
                 session,
                 "api_guardian.workers.tasks.analysis.analyze_repository_task",

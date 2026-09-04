@@ -1,9 +1,11 @@
 import os
 import uuid
-import pytest
+
 import boto3
-from botocore.exceptions import ClientError
+import pytest
+
 from api_guardian.sandbox.orchestrator import FargateSandboxOrchestrator
+
 
 @pytest.fixture(scope="module")
 def run_id():
