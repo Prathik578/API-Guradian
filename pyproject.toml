@@ -63,3 +63,6 @@ extraPaths = ["src", "."]
 venvPath = "."
 venv = ".venv"
 extraPaths = ["src", "."]
+
+[tool.vercel]
+entrypoint = "src.api_guardian.main:app"
