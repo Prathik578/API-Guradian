@@ -53,5 +53,10 @@ class DatabaseManager:
 import os
 
 # Global singleton for use in FastAPI and Celery workers
-DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///:memory:")
+DATABASE_URL = os.environ.get("DATABASE_URL", "")
+if not DATABASE_URL:
+    DATABASE_URL = "sqlite:///:memory:"
+elif DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
 db_manager = DatabaseManager(DATABASE_URL)
